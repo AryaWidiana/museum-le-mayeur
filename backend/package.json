@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "build": "chmod +x ./node_modules/.bin/prisma && prisma generate"
+    "build": "prisma generate"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
