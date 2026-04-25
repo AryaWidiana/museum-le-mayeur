@@ -122,7 +122,7 @@ export default function CashierPage() {
       // Fix ticketType format from "Anak - anak" to "Anak-anak" to match database
       const formattedTicketType = selectedTicket.label === 'Anak - anak' ? 'Anak-anak' : selectedTicket.label;
 
-      const response = await fetch('http://localhost:5000/api/transactions', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -75,7 +75,7 @@ export default function ProfilPage() {
     setLoading(true)
     try {
       const token = sessionStorage.getItem('admin_token')
-      const response = await fetch('http://localhost:5000/api/profile', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await response.json()
@@ -144,7 +144,7 @@ export default function ProfilPage() {
     setEditError('')
     try {
       const token = sessionStorage.getItem('admin_token')
-      const response = await fetch('http://localhost:5000/api/profile', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -233,7 +233,7 @@ export default function ProfilPage() {
     e.preventDefault()
     try {
       const token = sessionStorage.getItem('admin_token')
-      const res = await fetch('http://localhost:5000/api/profile/activity', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/profile/activity`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

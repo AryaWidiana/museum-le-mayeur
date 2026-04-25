@@ -51,7 +51,7 @@ export default function LaporanPage() {
       setLoading(true)
       try {
         const token = sessionStorage.getItem('admin_token')
-        const response = await fetch(`http://localhost:5000/api/report?timeTab=${timeTab}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/report?timeTab=${timeTab}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         const data = await response.json()
