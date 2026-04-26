@@ -53,6 +53,35 @@ export default function AdminLayout({ activePage, title, subtitle, headerAction,
   const menuRef = useRef(null)
   const notifRef = useRef(null)
 
+  // ── GLOBAL PROFILE INITIALIZER ──
+  // Fetches profile from backend on EVERY mount to keep Sidebar in sync,
+  // even after browser refresh or new login without visiting ProfilPage.
+  useEffect(() => {
+    const token = sessionStorage.getItem('admin_token')
+    if (!token) return
+
+    const API = import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app'
+    fetch(`${API}/api/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(r => r.json().catch(() => ({})))
+      .then(data => {
+        if (data.success && data.data?.admin) {
+          const a = data.data.admin
+          const name = a.name || a.username || 'Admin'
+          sessionStorage.setItem('admin_name', name)
+          sessionStorage.setItem('admin_user', a.username)
+          if (a.profilePic) sessionStorage.setItem('admin_profile_pic', a.profilePic)
+          sessionStorage.setItem('admin_role', a.role || 'admin')
+
+          setAdminName(name)
+          setAdminProfilePic(a.profilePic || null)
+          setAdminRole(a.role || 'admin')
+        }
+      })
+      .catch(() => {}) // silently fail — sessionStorage fallback is already shown
+  }, [])
+
   // Listen for custom event dispatched when profile is updated
   useEffect(() => {
     const handleProfileUpdate = () => {

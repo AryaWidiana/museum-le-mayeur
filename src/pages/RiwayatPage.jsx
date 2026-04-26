@@ -150,20 +150,43 @@ export default function RiwayatPage() {
             ) : historyData.activities.length === 0 ? (
               <p className="text-xs text-gray-400 pl-8">Belum ada aktivitas admin</p>
             ) : historyData.activities.map((act) => {
-              const timeString = new Date(act.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+              const dateObj = new Date(act.createdAt)
+              const timeString = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+              const dateString = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
               let iconType = act.type || 'edit'
+
+              // Map type to user-friendly label
+              const typeLabels = {
+                login: 'Login',
+                edit: 'Edit',
+                export: 'Export',
+                add: 'Tambah',
+                delete: 'Hapus',
+                transaction: 'Transaksi'
+              }
 
               return (
                 <div key={act.id} className="relative pl-12 group">
                   <TimelineIcon type={iconType} />
                   <div className="bg-gray-50/50 rounded-lg p-3 border border-gray-100 group-hover:bg-white group-hover:border-blue-300 group-hover:shadow-sm transition-all">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-bold text-museum-brown">{act.title}</span>
-                      <span className="text-[10px] font-bold text-gray-400">{timeString}</span>
+                      <span className="text-xs font-bold text-museum-brown">{act.title || 'Aktivitas Admin'}</span>
+                      <div className="text-right flex-shrink-0">
+                        <span className="text-[10px] font-bold text-gray-400 block">{timeString}</span>
+                        <span className="text-[9px] text-gray-300">{dateString}</span>
+                      </div>
                     </div>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">{act.detail || 'System Activity'}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-[10px] font-bold text-gray-500 bg-gray-200/50 px-2 py-1 rounded uppercase">Type: {act.type}</span>
+                    <p className="text-xs text-gray-500 mb-2">{act.detail || 'System Activity'}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${
+                        iconType === 'login' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                        iconType === 'delete' ? 'bg-red-50 text-red-600 border border-red-100' :
+                        iconType === 'add' ? 'bg-green-50 text-green-600 border border-green-100' :
+                        iconType === 'export' ? 'bg-purple-50 text-purple-600 border border-purple-100' :
+                        'bg-yellow-50 text-yellow-600 border border-yellow-100'
+                      }`}>
+                        {typeLabels[iconType] || iconType}
+                      </span>
                     </div>
                   </div>
                 </div>

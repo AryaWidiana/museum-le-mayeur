@@ -163,7 +163,6 @@ export default function ProfilPage() {
         },
         body: JSON.stringify({
           name: formDataToSave.name,
-          username: formDataToSave.username,
           profilePic: formDataToSave.profilePic
         })
       })
@@ -523,7 +522,11 @@ export default function ProfilPage() {
                       title={act.desc} 
                       fullDate={fullDate}
                       badgeText={act.status} 
-                      badgeColor={act.status === 'Tutup' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600'}
+                      badgeColor={
+                        act.status === 'Tutup' ? 'bg-red-100 text-red-600' : 
+                        act.status === 'Buka' ? 'bg-green-100 text-green-600' : 
+                        'bg-yellow-100 text-yellow-600'
+                      }
                       onDelete={handleDeleteActivity}
                     />
                   )
@@ -538,38 +541,53 @@ export default function ProfilPage() {
         {showActivityModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
             <div className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 relative">
-              <h3 className="text-lg font-bold text-museum-brown mb-4">Tambah Kegiatan Baru</h3>
+              <button onClick={() => setShowActivityModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+              <h3 className="text-lg font-bold text-museum-brown mb-1">Tambah Kegiatan Baru</h3>
+              <p className="text-xs text-gray-400 mb-5">Data akan tersimpan ke database jadwal museum.</p>
               <form onSubmit={handleAddActivity} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-museum-brown mb-1">Deskripsi Kegiatan</label>
+                  <label className="block text-xs font-bold text-museum-brown mb-1.5">Deskripsi Kegiatan</label>
                   <input 
                     type="text" required
                     value={activityForm.desc} onChange={e => setActivityForm({...activityForm, desc: e.target.value})}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-museum-gold outline-none"
-                    placeholder="Contoh: Nyepi"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-museum-gold focus:ring-1 focus:ring-museum-gold/30 outline-none transition-all"
+                    placeholder="Contoh: Hari Raya Nyepi"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-museum-brown mb-1">Tanggal</label>
+                  <label className="block text-xs font-bold text-museum-brown mb-1.5">Tanggal</label>
                   <input 
                     type="date" required
                     value={activityForm.date} onChange={e => setActivityForm({...activityForm, date: e.target.value})}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-museum-gold outline-none"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:border-museum-gold focus:ring-1 focus:ring-museum-gold/30 outline-none transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-museum-brown mb-1">Status</label>
-                  <select 
-                    value={activityForm.status} onChange={e => setActivityForm({...activityForm, status: e.target.value})}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-museum-gold outline-none bg-white"
-                  >
-                    <option value="Libur">Libur</option>
-                    <option value="Tutup">Tutup</option>
-                  </select>
+                  <label className="block text-xs font-bold text-museum-brown mb-2">Status</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'Buka', label: 'Buka', color: 'bg-green-50 border-green-300 text-green-700', activeColor: 'bg-green-500 text-white border-green-500' },
+                      { value: 'Libur', label: 'Libur', color: 'bg-yellow-50 border-yellow-300 text-yellow-700', activeColor: 'bg-yellow-500 text-white border-yellow-500' },
+                      { value: 'Tutup', label: 'Tutup', color: 'bg-red-50 border-red-300 text-red-700', activeColor: 'bg-red-500 text-white border-red-500' },
+                    ].map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setActivityForm({...activityForm, status: opt.value})}
+                        className={`py-2 rounded-lg text-xs font-bold border-2 transition-all ${
+                          activityForm.status === opt.value ? opt.activeColor : opt.color
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex justify-end gap-3 mt-6">
-                  <button type="button" onClick={() => setShowActivityModal(false)} className="px-4 py-2 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">Batal</button>
-                  <button type="submit" className="px-4 py-2 text-xs font-bold bg-museum-gold text-white rounded-lg hover:bg-[#d4af37] transition-colors">Simpan</button>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button type="button" onClick={() => setShowActivityModal(false)} className="px-4 py-2.5 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">Batal</button>
+                  <button type="submit" className="px-5 py-2.5 text-xs font-bold bg-museum-gold text-white rounded-lg hover:bg-[#d4af37] transition-colors shadow-sm shadow-museum-gold/30">Simpan Kegiatan</button>
                 </div>
               </form>
             </div>
