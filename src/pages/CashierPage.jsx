@@ -122,7 +122,7 @@ export default function CashierPage() {
       // Fix ticketType format from "Anak - anak" to "Anak-anak" to match database
       const formattedTicketType = selectedTicket.label === 'Anak - anak' ? 'Anak-anak' : selectedTicket.label;
 
-      const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur-pi7e5zsde-aryawidianas-projects.vercel.app')}/api/transactions`, {
+      const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -62,7 +62,7 @@ export default function RiwayatPage() {
       setLoading(true)
       try {
         const token = sessionStorage.getItem('admin_token')
-        const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur-pi7e5zsde-aryawidianas-projects.vercel.app')}/api/history?limit=15`, {
+        const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/history?limit=15`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         const data = await response.json().catch(() => ({}));
