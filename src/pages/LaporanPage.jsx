@@ -246,101 +246,120 @@ export default function LaporanPage() {
           </div>
         </div>
       </div>
-
-      {/* PDF Template — hidden but fully laid out so clone inherits computed styles */}
+      {/* ═══════════ PDF TEMPLATE (hidden, captured by exportPdf.js clone strategy) ═══════════ */}
       <div style={{ overflow: 'hidden', height: 0, position: 'relative' }}>
-        <div 
-          id="pdf-laporan" 
-          className="bg-white" 
-          style={{ width: '980px' }}
-        >
-          <div className="p-8">
-          <div className="flex items-center justify-between border-b-2 border-museum-brown pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-serif font-bold text-museum-brown">Museum Le Mayeur</h1>
-              <p className="text-sm text-museum-brown/70 mt-1">Laporan Ringkasan Pendapatan</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-bold text-museum-brown">Tanggal Cetak:</p>
-              <p className="text-xs text-museum-brown/70">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-            </div>
-          </div>
-          
-          <div className="mb-8 grid grid-cols-3 gap-4">
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Total Transaksi</p>
-              <p className="text-2xl font-bold text-museum-gold">{reportData.totalTransaksi.toLocaleString()}</p>
-              <p className="text-[10px] text-gray-400 mt-1">Periode: {timeTab}</p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Total Pendapatan</p>
-              <p className="text-2xl font-bold text-museum-brown">{formatRp(reportData.totalPendapatan)}</p>
-              <p className="text-[10px] text-gray-400 mt-1">Periode: {timeTab}</p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Rata-rata Harian</p>
-              <p className="text-2xl font-bold text-green-600">{formatRp(reportData.rataRataHarian)}</p>
-              <p className="text-[10px] text-gray-400 mt-1">Estimasi per hari</p>
-            </div>
+        <div id="pdf-laporan" style={{
+          width: '1050px',
+          background: '#fff',
+          fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
+          color: '#2D1810',
+          boxSizing: 'border-box',
+          padding: '40px 48px',
+        }}>
+
+          {/* ── HEADER ── */}
+          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', margin: '0 0 4px 0', letterSpacing: '-0.3px' }}>
+              MUSEUM LE MAYEUR
+            </h1>
+            <p style={{ fontSize: '11px', color: '#7C6A5C', margin: 0 }}>
+              Jl. Hang Tuah, Sanur, Denpasar Selatan, Kota Denpasar, Bali
+            </p>
           </div>
 
-          {/* WNI Table */}
-          <h3 className="text-lg font-bold text-museum-brown mb-3">Detail Pendapatan WNI</h3>
-          <table className="w-full text-left border-collapse mb-8">
+          <div style={{ borderBottom: '3px double #2D1810', marginBottom: '24px', paddingBottom: '4px' }}>
+            <div style={{ borderBottom: '1px solid #2D1810' }} />
+          </div>
+
+          <h2 style={{ textAlign: 'center', fontSize: '15px', fontWeight: '700', margin: '0 0 4px 0' }}>
+            LAPORAN RINGKASAN PENDAPATAN
+          </h2>
+          <p style={{ textAlign: 'center', fontSize: '10px', color: '#888', margin: '0 0 24px 0' }}>
+            Periode: {timeTab} &nbsp;|&nbsp; Dicetak: {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+
+          {/* ── SUMMARY CARDS ── */}
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '28px' }}>
+            {[
+              { label: 'Total Transaksi', value: reportData.totalTransaksi.toLocaleString(), unit: 'transaksi', bg: '#FFF8F0', border: '#E8C87A' },
+              { label: 'Total Pendapatan', value: formatRp(reportData.totalPendapatan), unit: timeTab, bg: '#F8F6F1', border: '#A08060' },
+              { label: 'Rata-rata Harian', value: formatRp(reportData.rataRataHarian), unit: 'per hari', bg: '#F0FFF4', border: '#48BB78' },
+            ].map((card, i) => (
+              <div key={i} style={{
+                flex: 1,
+                background: card.bg,
+                border: `1px solid ${card.border}`,
+                borderRadius: '8px',
+                padding: '14px 16px',
+              }}>
+                <p style={{ fontSize: '9px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#888', margin: '0 0 6px 0' }}>{card.label}</p>
+                <p style={{ fontSize: '20px', fontWeight: '800', margin: '0 0 2px 0', color: '#2D1810' }}>{card.value}</p>
+                <p style={{ fontSize: '9px', color: '#aaa', margin: 0 }}>{card.unit}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── WNI TABLE ── */}
+          <h3 style={{ fontSize: '13px', fontWeight: '700', margin: '0 0 10px 0', borderBottom: '2px solid #E8C87A', paddingBottom: '6px', display: 'inline-block' }}>
+            Detail Pendapatan — WNI
+          </h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px', fontSize: '10px' }}>
             <thead>
-              <tr className="bg-museum-brown text-white">
-                <th className="p-3 text-xs font-bold border border-museum-brown">Kategori</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown">Jumlah Pengunjung</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown text-right">Pendapatan</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown text-right">Presentase</th>
+              <tr style={{ background: '#2D1810', color: '#fff' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Kategori</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Jumlah</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Pendapatan</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '700', fontSize: '10px' }}>%</th>
               </tr>
             </thead>
             <tbody>
               {reportData.detailKategoriWNI.length === 0 ? (
-                <tr><td colSpan={4} className="p-3 text-center text-sm text-gray-500 border border-gray-200">Belum ada transaksi WNI</td></tr>
+                <tr><td colSpan={4} style={{ padding: '14px', textAlign: 'center', color: '#aaa', border: '1px solid #e5e5e5' }}>Belum ada transaksi WNI</td></tr>
               ) : reportData.detailKategoriWNI.map((row, idx) => (
-                <tr key={idx} className="border-b border-gray-200">
-                  <td className="p-3 text-sm font-semibold text-gray-800 border border-gray-200">{row.kategori}</td>
-                  <td className="p-3 text-sm text-gray-700 border border-gray-200">{row.jumlah} Orang</td>
-                  <td className="p-3 text-sm font-bold text-gray-800 text-right border border-gray-200">{formatRp(row.pendapatan)}</td>
-                  <td className="p-3 text-sm text-gray-700 text-right border border-gray-200">{row.presentase}</td>
+                <tr key={idx} style={{ background: idx % 2 === 0 ? '#FAFAF8' : '#fff' }}>
+                  <td style={{ padding: '9px 12px', textAlign: 'left', fontWeight: '600', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{row.kategori}</td>
+                  <td style={{ padding: '9px 12px', textAlign: 'center', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{row.jumlah} Orang</td>
+                  <td style={{ padding: '9px 12px', textAlign: 'right', fontWeight: '700', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{formatRp(row.pendapatan)}</td>
+                  <td style={{ padding: '9px 12px', textAlign: 'center', borderBottom: '1px solid #eee' }}>{row.presentase}</td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          {/* WNA Table */}
-          <h3 className="text-lg font-bold text-museum-brown mb-3">Detail Pendapatan WNA</h3>
-          <table className="w-full text-left border-collapse">
+          {/* ── WNA TABLE ── */}
+          <h3 style={{ fontSize: '13px', fontWeight: '700', margin: '0 0 10px 0', borderBottom: '2px solid #E8C87A', paddingBottom: '6px', display: 'inline-block' }}>
+            Detail Pendapatan — WNA
+          </h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px', fontSize: '10px' }}>
             <thead>
-              <tr className="bg-museum-brown text-white">
-                <th className="p-3 text-xs font-bold border border-museum-brown">Kategori</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown">Jumlah Pengunjung</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown text-right">Pendapatan</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown text-right">Presentase</th>
+              <tr style={{ background: '#2D1810', color: '#fff' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Kategori</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Jumlah</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Pendapatan</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '700', fontSize: '10px' }}>%</th>
               </tr>
             </thead>
             <tbody>
               {reportData.detailKategoriWNA.length === 0 ? (
-                <tr><td colSpan={4} className="p-3 text-center text-sm text-gray-500 border border-gray-200">Belum ada transaksi WNA</td></tr>
+                <tr><td colSpan={4} style={{ padding: '14px', textAlign: 'center', color: '#aaa', border: '1px solid #e5e5e5' }}>Belum ada transaksi WNA</td></tr>
               ) : reportData.detailKategoriWNA.map((row, idx) => (
-                <tr key={idx} className="border-b border-gray-200">
-                  <td className="p-3 text-sm font-semibold text-gray-800 border border-gray-200">{row.kategori}</td>
-                  <td className="p-3 text-sm text-gray-700 border border-gray-200">{row.jumlah} Orang</td>
-                  <td className="p-3 text-sm font-bold text-gray-800 text-right border border-gray-200">{formatRp(row.pendapatan)}</td>
-                  <td className="p-3 text-sm text-gray-700 text-right border border-gray-200">{row.presentase}</td>
+                <tr key={idx} style={{ background: idx % 2 === 0 ? '#FAFAF8' : '#fff' }}>
+                  <td style={{ padding: '9px 12px', textAlign: 'left', fontWeight: '600', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{row.kategori}</td>
+                  <td style={{ padding: '9px 12px', textAlign: 'center', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{row.jumlah} Orang</td>
+                  <td style={{ padding: '9px 12px', textAlign: 'right', fontWeight: '700', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{formatRp(row.pendapatan)}</td>
+                  <td style={{ padding: '9px 12px', textAlign: 'center', borderBottom: '1px solid #eee' }}>{row.presentase}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           
-          <div className="mt-16 text-right">
-            <p className="text-sm text-gray-500 mb-16">Petugas Penanggung Jawab,</p>
-            <p className="text-sm font-bold text-museum-brown underline">{sessionStorage.getItem('admin_name') || 'Admin'}</p>
-            <p className="text-xs text-gray-500">Museum Le Mayeur</p>
+          {/* ── SIGNATURE ── */}
+          <div style={{ marginTop: '48px', textAlign: 'right' }}>
+            <p style={{ fontSize: '11px', color: '#888', marginBottom: '56px' }}>Petugas Penanggung Jawab,</p>
+            <p style={{ fontSize: '12px', fontWeight: '700', textDecoration: 'underline', margin: '0 0 2px 0' }}>{sessionStorage.getItem('admin_name') || 'Admin'}</p>
+            <p style={{ fontSize: '10px', color: '#888', margin: 0 }}>Museum Le Mayeur</p>
           </div>
         </div>
-      </div>
       </div>
     </AdminLayout>
   )

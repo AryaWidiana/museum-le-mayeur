@@ -273,70 +273,92 @@ export default function TransaksiPage() {
         </div>
       </div>
 
-      {/* PDF Template — hidden but fully laid out so clone inherits computed styles */}
+      {/* ═══════════ PDF TEMPLATE (hidden, captured by exportPdf.js clone strategy) ═══════════ */}
       <div style={{ overflow: 'hidden', height: 0, position: 'relative' }}>
-        <div 
-          id="pdf-transaksi" 
-          className="bg-white" 
-          style={{ width: '980px' }}
-        >
-          <div className="p-8">
-          <div className="flex items-center justify-between border-b-2 border-museum-brown pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-serif font-bold text-museum-brown">Museum Le Mayeur</h1>
-              <p className="text-sm text-museum-brown/70 mt-1">Laporan Data Transaksi Pengunjung</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-bold text-museum-brown">Tanggal Cetak:</p>
-              <p className="text-xs text-museum-brown/70">{new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-            </div>
-          </div>
-          
-          <div className="mb-6 flex gap-4">
-            <div className="bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Filter Waktu</p>
-              <p className="text-sm font-semibold text-museum-brown">{timeTab}</p>
-            </div>
-            <div className="bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Filter Kategori</p>
-              <p className="text-sm font-semibold text-museum-brown">{filterKategori}</p>
-            </div>
-            <div className="bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total Transaksi</p>
-              <p className="text-sm font-semibold text-museum-brown">{filtered.length} Transaksi</p>
-            </div>
+        <div id="pdf-transaksi" style={{
+          width: '1050px',
+          background: '#fff',
+          fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
+          color: '#2D1810',
+          boxSizing: 'border-box',
+          padding: '40px 48px',
+        }}>
+
+          {/* ── HEADER ── */}
+          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', margin: '0 0 4px 0', letterSpacing: '-0.3px' }}>
+              MUSEUM LE MAYEUR
+            </h1>
+            <p style={{ fontSize: '11px', color: '#7C6A5C', margin: 0 }}>
+              Jl. Hang Tuah, Sanur, Denpasar Selatan, Kota Denpasar, Bali
+            </p>
           </div>
 
-          <table className="w-full text-left border-collapse">
+          <div style={{ borderBottom: '3px double #2D1810', marginBottom: '24px', paddingBottom: '4px' }}>
+            <div style={{ borderBottom: '1px solid #2D1810' }} />
+          </div>
+
+          <h2 style={{ textAlign: 'center', fontSize: '15px', fontWeight: '700', margin: '0 0 4px 0' }}>
+            LAPORAN DATA TRANSAKSI PENGUNJUNG
+          </h2>
+          <p style={{ textAlign: 'center', fontSize: '10px', color: '#888', margin: '0 0 24px 0' }}>
+            Dicetak: {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+
+          {/* ── FILTER INFO ── */}
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+            {[
+              { label: 'Filter Waktu', value: timeTab },
+              { label: 'Filter Kategori', value: filterKategori },
+              { label: 'Total Transaksi', value: `${filtered.length} transaksi` },
+            ].map((item, i) => (
+              <div key={i} style={{
+                background: '#F8F6F1',
+                border: '1px solid #E5E0D5',
+                borderRadius: '6px',
+                padding: '8px 14px',
+              }}>
+                <p style={{ fontSize: '8px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#999', margin: '0 0 3px 0' }}>{item.label}</p>
+                <p style={{ fontSize: '12px', fontWeight: '600', color: '#2D1810', margin: 0 }}>{item.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* ── DATA TABLE ── */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
             <thead>
-              <tr className="bg-museum-brown text-white">
-                <th className="p-3 text-xs font-bold border border-museum-brown w-[40px]">No</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown">Nama Pengunjung</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown">Kategori</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown">Metode</th>
-                <th className="p-3 text-xs font-bold border border-museum-brown text-right">Harga</th>
+              <tr style={{ background: '#2D1810', color: '#fff' }}>
+                <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '700', fontSize: '10px', width: '40px', borderRight: '1px solid #4A3828' }}>No</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Nama Pengunjung</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Tanggal</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Kategori</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: '700', fontSize: '10px', borderRight: '1px solid #4A3828' }}>Metode</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', fontSize: '10px' }}>Harga</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((t, idx) => (
-                <tr key={t.id} className="border-b border-gray-200">
-                  <td className="p-3 text-xs text-gray-700 border border-gray-200">{idx + 1}</td>
-                  <td className="p-3 text-xs font-semibold text-gray-800 border border-gray-200">{t.nama} <br/><span className="text-[10px] text-gray-500 font-normal">{t.tanggal}</span></td>
-                  <td className="p-3 text-xs text-gray-700 border border-gray-200">{t.kategori}</td>
-                  <td className="p-3 text-xs text-gray-700 border border-gray-200">{t.pembayaran}</td>
-                  <td className="p-3 text-xs font-bold text-gray-800 text-right border border-gray-200">{formatRupiah(t.harga)}</td>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={6} style={{ padding: '14px', textAlign: 'center', color: '#aaa', border: '1px solid #e5e5e5' }}>Tidak ada transaksi</td></tr>
+              ) : filtered.map((t, idx) => (
+                <tr key={t.id} style={{ background: idx % 2 === 0 ? '#FAFAF8' : '#fff' }}>
+                  <td style={{ padding: '8px', textAlign: 'center', fontSize: '9px', color: '#999', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{idx + 1}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'left', fontWeight: '600', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{t.nama}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'left', fontSize: '9px', color: '#666', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{t.tanggal}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{t.kategori}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center', borderBottom: '1px solid #eee', borderRight: '1px solid #eee' }}>{t.pembayaran}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: '700', borderBottom: '1px solid #eee' }}>{formatRupiah(t.harga)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          
-          <div className="mt-16 text-right">
-            <p className="text-sm text-gray-500 mb-16">Petugas Penanggung Jawab,</p>
-            <p className="text-sm font-bold text-museum-brown underline">{sessionStorage.getItem('admin_name') || 'Admin'}</p>
-            <p className="text-xs text-gray-500">Museum Le Mayeur</p>
+
+          {/* ── SIGNATURE ── */}
+          <div style={{ marginTop: '48px', textAlign: 'right' }}>
+            <p style={{ fontSize: '11px', color: '#888', marginBottom: '56px' }}>Petugas Penanggung Jawab,</p>
+            <p style={{ fontSize: '12px', fontWeight: '700', textDecoration: 'underline', margin: '0 0 2px 0' }}>{sessionStorage.getItem('admin_name') || 'Admin'}</p>
+            <p style={{ fontSize: '10px', color: '#888', margin: 0 }}>Museum Le Mayeur</p>
           </div>
         </div>
-      </div>
       </div>
     </AdminLayout>
   )
