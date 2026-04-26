@@ -29,6 +29,8 @@ export default function AdminLogin() {
         sessionStorage.setItem('admin_token', data.data.token)
         sessionStorage.setItem('admin_logged_in', 'true')
         sessionStorage.setItem('admin_user', data.data.username || username)
+        if (data.data.name) sessionStorage.setItem('admin_name', data.data.name)
+        if (data.data.profilePic) sessionStorage.setItem('admin_profile_pic', data.data.profilePic)
         window.location.href = '/kasir'
       } else {
         setError(data?.message || 'Username atau password salah, atau data payload (token) tidak ditemukan!')

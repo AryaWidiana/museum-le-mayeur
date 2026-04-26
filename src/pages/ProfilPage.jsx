@@ -26,9 +26,9 @@ function StatCard({ title, value, subtitle, colorClass, barColor, icon }) {
 }
 
 // ─── Activity Item ───────────────────────────────────────────
-function ActivityItem({ dateNum, dateDay, title, badgeText, badgeColor, fullDate }) {
+function ActivityItem({ id, dateNum, dateDay, title, badgeText, badgeColor, fullDate, onDelete }) {
   return (
-    <div className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 bg-white shadow-sm">
+    <div className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 bg-white shadow-sm relative group">
       <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 flex-shrink-0">
         <span className="text-sm font-bold text-museum-brown leading-none">{dateNum}</span>
         <span className="text-[10px] text-gray-400 mt-1">{dateDay}</span>
@@ -47,6 +47,16 @@ function ActivityItem({ dateNum, dateDay, title, badgeText, badgeColor, fullDate
           </span>
         </div>
       </div>
+      </div>
+      {onDelete && (
+        <button 
+          onClick={() => onDelete(id)}
+          title="Hapus Kegiatan"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+        </button>
+      )}
     </div>
   )
 }
@@ -55,6 +65,7 @@ function ActivityItem({ dateNum, dateDay, title, badgeText, badgeColor, fullDate
 export default function ProfilPage() {
   const [adminData, setAdminData] = useState(null)
   const [activities, setActivities] = useState([])
+  const [attendance, setAttendance] = useState({ hadir: 0, libur: 0 })
   const [loading, setLoading] = useState(true)
   
   // Calendar State
@@ -82,6 +93,7 @@ export default function ProfilPage() {
       if (response.ok && data.success) {
         setAdminData(data.data.admin)
         setActivities(data.data.activities || [])
+        setAttendance(data.data.attendance || { hadir: 0, libur: 0 })
         
         // Sync session storage just in case it's out of sync
         sessionStorage.setItem('admin_name', data.data.admin.name || data.data.admin.username)
@@ -222,8 +234,7 @@ export default function ProfilPage() {
   const profilePic = isEditing ? editForm.profilePic : (adminData?.profilePic || null)
   const joinedDate = adminData ? new Date(adminData.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'
 
-  const liburCount = activities.filter(a => a.status === 'Libur').length
-  const tutupCount = activities.filter(a => a.status === 'Tutup').length
+  const joinedDate = adminData ? new Date(adminData.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'
 
   // Modal State
   const [showActivityModal, setShowActivityModal] = useState(false)
@@ -248,6 +259,27 @@ export default function ProfilPage() {
         setActivityForm({ desc: '', date: '', status: 'Libur' })
       } else {
         alert(data.message || 'Gagal menambahkan kegiatan')
+      }
+    } catch (err) {
+      alert('Terjadi kesalahan')
+    }
+  }
+
+  const handleDeleteActivity = async (id) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus kegiatan ini?')) return
+    try {
+      const token = sessionStorage.getItem('admin_token')
+      const res = await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/profile/activity/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        setActivities(activities.filter(a => a.id !== id))
+      } else {
+        alert(data.message || 'Gagal menghapus kegiatan')
       }
     } catch (err) {
       alert('Terjadi kesalahan')
@@ -325,14 +357,12 @@ export default function ProfilPage() {
                 />
               </div>
               <div>
-                <label className="block text-[10px] text-gray-500 font-bold mb-1 uppercase tracking-wider">Username</label>
+                <label className="block text-[10px] text-gray-500 font-bold mb-1 uppercase tracking-wider">Username Login (Tidak bisa diubah)</label>
                 <input 
                   type="text" 
-                  required
+                  disabled
                   value={editForm.username} 
-                  onChange={e => setEditForm({...editForm, username: e.target.value})}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-museum-brown font-semibold focus:bg-white focus:border-museum-gold outline-none transition-colors"
-                  placeholder="Username"
+                  className="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500 font-semibold outline-none cursor-not-allowed"
                 />
               </div>
               <div className="pt-2 flex flex-col gap-2">
@@ -387,12 +417,12 @@ export default function ProfilPage() {
           {/* Top Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 animate-slide-up anim-delay-300">
             <StatCard 
-              title="Kehadiran" value="24" subtitle="24 Hari Aktif" 
+              title="Kehadiran" value={attendance.hadir} subtitle={`${attendance.hadir} Hari Aktif`} 
               colorClass="text-museum-gold" barColor="bg-museum-gold"
               icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>}
             />
             <StatCard 
-              title="Libur" value={liburCount} subtitle={`${liburCount} Hari`}
+              title="Libur" value={attendance.libur} subtitle={`${attendance.libur} Hari`}
               colorClass="text-gray-500" barColor="bg-gray-400"
               icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>}
             />
@@ -490,12 +520,14 @@ export default function ProfilPage() {
                   return (
                     <ActivityItem 
                       key={act.id}
+                      id={act.id}
                       dateNum={d.getDate()} 
                       dateDay={dayName} 
                       title={act.desc} 
                       fullDate={fullDate}
                       badgeText={act.status} 
                       badgeColor={act.status === 'Tutup' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600'}
+                      onDelete={handleDeleteActivity}
                     />
                   )
                 })}

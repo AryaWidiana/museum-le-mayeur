@@ -24,11 +24,30 @@ export const getProfile = async (req, res) => {
       orderBy: { date: 'desc' }
     });
 
+    // Kalkulasi Kehadiran
+    const now = new Date();
+    const joinedDate = new Date(admin.createdAt);
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const totalDaysSinceJoined = Math.max(1, Math.ceil((now - joinedDate) / msPerDay));
+
+    const loginLogs = await prisma.activityLog.findMany({
+      where: { type: 'login' },
+      select: { createdAt: true }
+    });
+
+    const uniqueLoginDates = new Set(
+      loginLogs.map(log => new Date(log.createdAt).toDateString())
+    );
+
+    const hadirCount = uniqueLoginDates.size;
+    const liburCount = Math.max(0, totalDaysSinceJoined - hadirCount);
+
     res.status(200).json({
       success: true,
       data: {
         admin,
-        activities
+        activities,
+        attendance: { hadir: hadirCount, libur: liburCount }
       }
     });
   } catch (error) {
@@ -107,5 +126,23 @@ export const addActivity = async (req, res) => {
   } catch (error) {
     console.error('Add Activity Error:', error);
     res.status(500).json({ success: false, message: 'Gagal menambahkan kegiatan: ' + (error.message || 'Unknown'), errorDetails: String(error) });
+  }
+};
+
+export const deleteActivity = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    await prisma.adminActivity.delete({
+      where: { id: parseInt(id) }
+    });
+
+    res.status(200).json({ success: true, message: 'Kegiatan berhasil dihapus' });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ success: false, message: 'Kegiatan tidak ditemukan' });
+    }
+    console.error('Delete Activity Error:', error);
+    res.status(500).json({ success: false, message: 'Gagal menghapus kegiatan' });
   }
 };

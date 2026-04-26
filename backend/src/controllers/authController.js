@@ -88,6 +88,8 @@ export const login = async (req, res) => {
       data: {
         id: admin.id,
         username: admin.username,
+        name: admin.name,
+        profilePic: admin.profilePic,
         token,
       },
     });

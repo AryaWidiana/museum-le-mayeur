@@ -144,23 +144,19 @@ export default function RiwayatPage() {
               <p className="text-xs text-gray-400 pl-8">Belum ada aktivitas admin</p>
             ) : historyData.activities.map((act) => {
               const timeString = new Date(act.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-              let iconType = 'edit'
-              if (act.action.toLowerCase().includes('login')) iconType = 'login'
-              else if (act.action.toLowerCase().includes('export')) iconType = 'export'
-              else if (act.action.toLowerCase().includes('tambah')) iconType = 'add'
-              else if (act.action.toLowerCase().includes('transaksi')) iconType = 'transaction'
+              let iconType = act.type || 'edit'
 
               return (
                 <div key={act.id} className="relative pl-12 group">
                   <TimelineIcon type={iconType} />
                   <div className="bg-gray-50/50 rounded-lg p-3 border border-gray-100 group-hover:bg-white group-hover:border-blue-300 group-hover:shadow-sm transition-all">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-bold text-museum-brown">{act.action}</span>
+                      <span className="text-xs font-bold text-museum-brown">{act.title}</span>
                       <span className="text-[10px] font-bold text-gray-400">{timeString}</span>
                     </div>
-                    <p className="text-xs font-semibold text-gray-500 mb-2">{act.details || 'System Activity'}</p>
+                    <p className="text-xs font-semibold text-gray-500 mb-2">{act.detail || 'System Activity'}</p>
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-[10px] font-bold text-gray-500 bg-gray-200/50 px-2 py-1 rounded">Admin ID: {act.adminId}</span>
+                      <span className="text-[10px] font-bold text-gray-500 bg-gray-200/50 px-2 py-1 rounded uppercase">Type: {act.type}</span>
                     </div>
                   </div>
                 </div>
