@@ -122,8 +122,8 @@ export default function ProfilPage() {
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setEditError('Ukuran gambar maksimal 5MB')
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        setEditError('Ukuran gambar maksimal 2MB untuk server Vercel.')
         return
       }
       const reader = new FileReader()

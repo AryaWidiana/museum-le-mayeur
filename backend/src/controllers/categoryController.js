@@ -23,6 +23,14 @@ export const createCategory = async (req, res, next) => {
       data: { name, type, price: parseInt(price) }
     });
 
+    await prisma.activityLog.create({
+      data: {
+        type: 'add',
+        title: 'Tambah Kategori',
+        detail: `Menambahkan kategori baru: ${name} (${type})`
+      }
+    });
+
     res.status(201).json({ success: true, message: 'Kategori berhasil ditambahkan', data: category });
   } catch (error) {
     next(error);
@@ -43,6 +51,14 @@ export const updateCategory = async (req, res, next) => {
       }
     });
 
+    await prisma.activityLog.create({
+      data: {
+        type: 'edit',
+        title: 'Edit Kategori',
+        detail: `Mengubah data kategori ID ${id}`
+      }
+    });
+
     res.status(200).json({ success: true, message: 'Kategori berhasil diperbarui', data: category });
   } catch (error) {
     if (error.code === 'P2025') {
@@ -57,6 +73,14 @@ export const deleteCategory = async (req, res, next) => {
     const { id } = req.params;
     await prisma.category.delete({
       where: { id: parseInt(id) }
+    });
+
+    await prisma.activityLog.create({
+      data: {
+        type: 'delete',
+        title: 'Hapus Kategori',
+        detail: `Menghapus kategori ID ${id}`
+      }
     });
 
     res.status(200).json({ success: true, message: 'Kategori berhasil dihapus' });

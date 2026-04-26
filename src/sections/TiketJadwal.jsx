@@ -60,19 +60,70 @@ const infoCards = [
   },
 ]
 
-const jadwalOperasional = [
-  { hari: 'Senin - Sabtu', jam: '09.00 - 15.00 WIB' },
-  { hari: 'Minggu', jam: 'Reservasi', isSpecial: true },
-  { hari: 'Hari Libur Nasional', jam: 'Menyesuaikan', isSpecial: true },
-]
+// Jadwal state now managed dynamically inside the component
 
 export default function TiketJadwal() {
   const [activeTab, setActiveTab] = useState('WNI')
   const [animating, setAnimating] = useState(false)
+  const [jadwal, setJadwal] = useState([
+    { hari: 'Senin - Sabtu', jam: '09.00 - 15.00 WITA' },
+    { hari: 'Minggu', jam: 'Reservasi', isSpecial: true },
+    { hari: 'Hari Libur Nasional', jam: 'Menyesuaikan', isSpecial: true }
+  ])
 
   const [headerRef, headerVisible] = useReveal({ threshold: 0.3 })
   const [leftRef, leftVisible] = useStaggerReveal({ threshold: 0.1 })
   const [rightRef, rightVisible] = useReveal({ threshold: 0.15 })
+
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const res = await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/schedule`);
+        const result = await res.json().catch(() => ({}));
+        
+        if (result.success && result.data) {
+          let dynamicJadwal = [];
+          
+          // Use dynamic hours if available, otherwise fallback
+          if (result.data.schedule) {
+            const formatTime = (isoString) => {
+              const d = new Date(isoString);
+              // Format HH.MM (e.g. 09.00)
+              return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Makassar' }).replace(':', '.');
+            };
+            const openTimeStr = formatTime(result.data.schedule.openTime);
+            const closeTimeStr = formatTime(result.data.schedule.closeTime);
+            dynamicJadwal.push({ hari: 'Senin - Sabtu', jam: `${openTimeStr} - ${closeTimeStr} WITA` });
+            dynamicJadwal.push({ hari: 'Minggu', jam: 'Reservasi', isSpecial: true });
+          } else {
+            dynamicJadwal.push({ hari: 'Senin - Sabtu', jam: '09.00 - 15.00 WITA' });
+            dynamicJadwal.push({ hari: 'Minggu', jam: 'Reservasi', isSpecial: true });
+          }
+
+          // Inject specific holidays/closures
+          if (result.data.activities && result.data.activities.length > 0) {
+            result.data.activities.forEach(act => {
+              const d = new Date(act.date);
+              const dateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+              dynamicJadwal.push({
+                hari: `${dateStr} (${act.desc})`,
+                jam: act.status.toUpperCase(),
+                isSpecial: true,
+                isClosed: true
+              });
+            });
+          } else {
+            dynamicJadwal.push({ hari: 'Hari Libur Nasional', jam: 'Menyesuaikan', isSpecial: true });
+          }
+
+          setJadwal(dynamicJadwal);
+        }
+      } catch (error) {
+        console.error("Failed to load schedule:", error);
+      }
+    };
+    fetchSchedule();
+  }, []);
 
   const handleTabSwitch = (tab) => {
     if (tab === activeTab) return
@@ -201,10 +252,10 @@ export default function TiketJadwal() {
                 Jam Operasional
               </h4>
               <div className="space-y-3">
-                {jadwalOperasional.map((item, idx) => (
+                {jadwal.map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between">
-                    <span className="text-white/70 text-sm font-medium">{item.hari}</span>
-                    <span className={`text-sm ${item.isSpecial
+                    <span className="text-white/70 text-sm font-medium truncate pr-4">{item.hari}</span>
+                    <span className={`text-sm flex-shrink-0 ${item.isClosed ? 'text-red-400 font-bold tracking-widest' : item.isSpecial
                         ? 'text-museum-gold/80 italic underline underline-offset-2'
                         : 'text-museum-gold font-serif font-semibold'
                       }`}>

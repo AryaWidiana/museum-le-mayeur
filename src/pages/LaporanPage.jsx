@@ -43,6 +43,23 @@ export default function LaporanPage() {
   const handleExportPDF = async () => {
     setIsExporting(true)
     await downloadPdf('pdf-laporan', `Laporan_Pendapatan_Museum_${new Date().getTime()}.pdf`)
+    
+    try {
+      const token = sessionStorage.getItem('admin_token')
+      await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/logs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'export',
+          title: 'Export Laporan PDF',
+          detail: `Mengekspor laporan pendapatan (Periode: ${timeTab})`
+        })
+      })
+    } catch (e) { console.error('Gagal mencatat log', e) }
+
     setIsExporting(false)
   }
 

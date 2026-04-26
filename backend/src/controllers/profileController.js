@@ -65,15 +65,25 @@ export const updateProfile = async (req, res) => {
     }
 
     const updated = await prisma.admin.update({
-      where: { id: adminId },
+      where: { id: Number(adminId) },
       data: updateData,
       select: { id: true, username: true, name: true, profilePic: true, role: true }
     });
 
+    if (username !== undefined || name !== undefined) {
+      await prisma.activityLog.create({
+        data: {
+          type: 'edit',
+          title: 'Update Profil',
+          detail: `Admin memperbarui profil (username/nama).`
+        }
+      });
+    }
+
     res.status(200).json({ success: true, message: 'Profil berhasil diperbarui', data: updated });
   } catch (error) {
     console.error('Update Profile Error:', error);
-    res.status(500).json({ success: false, message: 'Gagal memperbarui profil' });
+    res.status(500).json({ success: false, message: 'Gagal memperbarui profil: ' + (error.message || 'Unknown error'), errorDetails: String(error) });
   }
 };
 
@@ -96,6 +106,6 @@ export const addActivity = async (req, res) => {
     res.status(201).json({ success: true, message: 'Kegiatan berhasil ditambahkan', data: newActivity });
   } catch (error) {
     console.error('Add Activity Error:', error);
-    res.status(500).json({ success: false, message: 'Gagal menambahkan kegiatan' });
+    res.status(500).json({ success: false, message: 'Gagal menambahkan kegiatan: ' + (error.message || 'Unknown'), errorDetails: String(error) });
   }
 };

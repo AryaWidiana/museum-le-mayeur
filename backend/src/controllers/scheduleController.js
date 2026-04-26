@@ -2,14 +2,33 @@ import prisma from '../utils/prisma.js';
 
 export const getSchedule = async (req, res, next) => {
   try {
-    // Kita asumsikan hanya ada 1 jadwal operasional (record pertama)
     const schedule = await prisma.schedule.findFirst();
     
-    if (!schedule) {
-      return res.status(404).json({ success: false, message: 'Jadwal belum diatur' });
-    }
+    // Get upcoming holidays/closures (Libur/Tutup)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    res.status(200).json({ success: true, data: schedule });
+    const upcomingActivities = await prisma.adminActivity.findMany({
+      where: {
+        date: {
+          gte: today
+        },
+        status: {
+          in: ['Libur', 'Tutup']
+        }
+      },
+      orderBy: {
+        date: 'asc'
+      }
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      data: {
+        schedule: schedule || null,
+        activities: upcomingActivities
+      } 
+    });
   } catch (error) {
     next(error);
   }

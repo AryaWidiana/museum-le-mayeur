@@ -33,6 +33,8 @@ app.use(cors({
 app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 
+import logRoutes from './routes/logRoutes.js';
+
 // --- ROUTES ---
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
@@ -43,6 +45,7 @@ app.use('/api/schedule', scheduleRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/report', reportRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/logs', logRoutes);
 
 // --- GLOBAL ERROR HANDLER ---
 // Harus diletakkan paling bawah setelah semua routes

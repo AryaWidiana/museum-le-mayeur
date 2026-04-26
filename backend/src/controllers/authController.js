@@ -73,6 +73,15 @@ export const login = async (req, res) => {
       { expiresIn: '1d' } // Token berlaku 1 hari
     );
 
+    // Record Activity
+    await prisma.activityLog.create({
+      data: {
+        type: 'login',
+        title: 'Admin Login',
+        detail: `Admin ${admin.username} berhasil login ke sistem.`
+      }
+    });
+
     res.status(200).json({
       success: true,
       message: 'Login berhasil',

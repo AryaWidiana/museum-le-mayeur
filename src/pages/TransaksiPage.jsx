@@ -19,6 +19,23 @@ export default function TransaksiPage() {
   const handleExportPDF = async () => {
     setIsExporting(true)
     await downloadPdf('pdf-transaksi', `Data_Transaksi_Museum_${new Date().getTime()}.pdf`)
+    
+    try {
+      const token = sessionStorage.getItem('admin_token')
+      await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/logs`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: 'export',
+          title: 'Export Transaksi PDF',
+          detail: 'Mengekspor data transaksi pengunjung ke PDF'
+        })
+      })
+    } catch (e) { console.error('Gagal mencatat log', e) }
+
     setIsExporting(false)
   }
 
