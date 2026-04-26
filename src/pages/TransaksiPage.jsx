@@ -30,7 +30,7 @@ export default function TransaksiPage() {
         // Using dashboard's existing time filter logic or just passing everything.
         // Actually /api/transactions has it's own logic, but let's just fetch all and filter in frontend for simplicity since take is 100 or so.
         // Or better yet, we can filter in frontend for this demo if data is < 1000.
-        const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/transactions?limit=500`, {
+        const response = await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/transactions?limit=500`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         const data = await response.json().catch(() => ({}));

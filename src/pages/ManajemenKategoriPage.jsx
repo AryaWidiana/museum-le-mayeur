@@ -20,7 +20,7 @@ export default function ManajemenKategoriPage() {
     setLoading(true)
     try {
       const token = sessionStorage.getItem('admin_token')
-      const res = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/categories`, {
+      const res = await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/categories`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await res.json().catch(() => ({}));
@@ -48,7 +48,7 @@ export default function ManajemenKategoriPage() {
     if (!window.confirm('Yakin ingin menghapus kategori ini?')) return
     try {
       const token = sessionStorage.getItem('admin_token')
-      const res = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/categories/${id}`, {
+      const res = await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/categories/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -79,7 +79,7 @@ export default function ManajemenKategoriPage() {
     e.preventDefault()
     try {
       const token = sessionStorage.getItem('admin_token')
-      const url = editId ? `${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/categories/${editId}` : `${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/categories`
+      const url = editId ? `${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/categories/${editId}` : `${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/categories`
       const method = editId ? 'PUT' : 'POST'
 
       const payload = {

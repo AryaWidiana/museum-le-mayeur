@@ -72,7 +72,7 @@ export default function StatistikPage() {
     const fetchStats = async () => {
       try {
         const token = sessionStorage.getItem('admin_token')
-        const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/statistics`, {
+        const response = await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/statistics`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         const data = await response.json().catch(() => ({}));

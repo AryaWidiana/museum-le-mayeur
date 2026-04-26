@@ -75,7 +75,7 @@ export default function ProfilPage() {
     setLoading(true)
     try {
       const token = sessionStorage.getItem('admin_token')
-      const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/profile`, {
+      const response = await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await response.json().catch(() => ({}));
@@ -144,7 +144,7 @@ export default function ProfilPage() {
     setEditError('')
     try {
       const token = sessionStorage.getItem('admin_token')
-      const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/profile`, {
+      const response = await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -233,7 +233,7 @@ export default function ProfilPage() {
     e.preventDefault()
     try {
       const token = sessionStorage.getItem('admin_token')
-      const res = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur.vercel.app')}/api/profile/activity`, {
+      const res = await fetch(`${(import.meta.env.DEV ? 'http://localhost:5000' : 'https://museum-le-mayeur.vercel.app')}/api/profile/activity`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
