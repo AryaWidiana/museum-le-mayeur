@@ -17,6 +17,11 @@ export default function TransaksiPage() {
   const [isExporting, setIsExporting] = useState(false)
 
   const handleExportPDF = async () => {
+    if (filtered.length === 0) {
+      alert('Tidak ada transaksi pada rentang waktu ini. Ubah filter terlebih dahulu.')
+      return
+    }
+
     setIsExporting(true)
     await downloadPdf('pdf-transaksi', `Data_Transaksi_Museum_${new Date().getTime()}.pdf`)
     

@@ -23,8 +23,14 @@ export const getReport = async (req, res) => {
 
     const allTransactions = await prisma.transaction.findMany({
       where,
-      include: { category: true }
+      select: {
+        id: true,
+        totalPrice: true,
+        category: { select: { name: true, type: true } }
+      }
     });
+
+    console.log(`[Report] Data ditemukan untuk periode "${timeTab || 'Semua'}":`, allTransactions.length, 'transaksi');
 
     const wniMap = {};
     const wnaMap = {};

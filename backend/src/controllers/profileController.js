@@ -4,36 +4,39 @@ export const getProfile = async (req, res) => {
   try {
     const adminId = req.admin.id;
 
-    const admin = await prisma.admin.findUnique({
-      where: { id: adminId },
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        profilePic: true,
-        role: true,
-        createdAt: true
-      }
-    });
+    // ── PARALLEL FETCH: Run all 3 queries simultaneously ──
+    const [admin, activities, loginLogs] = await Promise.all([
+      prisma.admin.findUnique({
+        where: { id: adminId },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          profilePic: true,
+          role: true,
+          createdAt: true
+        }
+      }),
+      prisma.adminActivity.findMany({
+        orderBy: { date: 'desc' },
+        take: 50
+      }),
+      prisma.activityLog.findMany({
+        where: { type: 'login' },
+        select: { createdAt: true },
+        orderBy: { createdAt: 'desc' }
+      })
+    ]);
 
     if (!admin) {
       return res.status(404).json({ success: false, message: 'Admin tidak ditemukan' });
     }
-
-    const activities = await prisma.adminActivity.findMany({
-      orderBy: { date: 'desc' }
-    });
 
     // Kalkulasi Kehadiran
     const now = new Date();
     const joinedDate = new Date(admin.createdAt);
     const msPerDay = 1000 * 60 * 60 * 24;
     const totalDaysSinceJoined = Math.max(1, Math.ceil((now - joinedDate) / msPerDay));
-
-    const loginLogs = await prisma.activityLog.findMany({
-      where: { type: 'login' },
-      select: { createdAt: true }
-    });
 
     const uniqueLoginDates = new Set(
       loginLogs.map(log => new Date(log.createdAt).toDateString())

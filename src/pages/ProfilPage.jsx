@@ -282,6 +282,56 @@ export default function ProfilPage() {
     }
   }
 
+  // ── SKELETON LOADING ──
+  if (loading) {
+    return (
+      <AdminLayout activePage="Profil" title="Profil" subtitle="Memuat data profil...">
+        <div className="flex flex-col lg:flex-row gap-6 items-stretch">
+          {/* Left skeleton */}
+          <div className="w-full lg:w-[320px] bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center flex-shrink-0 animate-pulse">
+            <div className="w-24 h-24 rounded-full bg-gray-200 mb-4" />
+            <div className="h-5 bg-gray-200 rounded w-32 mb-2" />
+            <div className="h-3 bg-gray-100 rounded w-20 mb-4" />
+            <div className="w-full space-y-3 mt-4">
+              <div className="h-10 bg-gray-100 rounded-lg" />
+              <div className="h-10 bg-gray-100 rounded-lg" />
+            </div>
+            <div className="w-full mt-6 space-y-2">
+              <div className="h-3 bg-gray-100 rounded w-24" />
+              <div className="h-3 bg-gray-100 rounded w-36" />
+            </div>
+          </div>
+          {/* Right skeleton */}
+          <div className="flex-1 flex flex-col gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {[1,2,3].map(i => (
+                <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 animate-pulse">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 bg-gray-200 rounded w-16" />
+                      <div className="h-6 bg-gray-100 rounded w-12" />
+                    </div>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 rounded-full" />
+                </div>
+              ))}
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex-1 animate-pulse">
+              <div className="h-5 bg-gray-200 rounded w-40 mb-6" />
+              <div className="grid grid-cols-7 gap-2 mb-4">
+                {Array.from({length: 7}).map((_,i) => <div key={i} className="h-3 bg-gray-100 rounded" />)}
+              </div>
+              <div className="grid grid-cols-7 gap-2">
+                {Array.from({length: 35}).map((_,i) => <div key={i} className="h-8 bg-gray-50 rounded" />)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </AdminLayout>
+    )
+  }
+
   return (
     <AdminLayout activePage="Profil" title="Profil" subtitle="Informasi akun admin">
       <div className="flex flex-col lg:flex-row gap-6 items-stretch relative">

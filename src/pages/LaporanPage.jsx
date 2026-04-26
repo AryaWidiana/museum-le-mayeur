@@ -41,6 +41,12 @@ export default function LaporanPage() {
   const [isExporting, setIsExporting] = useState(false)
 
   const handleExportPDF = async () => {
+    // Guard: prevent exporting empty PDF
+    if (reportData.totalTransaksi === 0) {
+      alert('Tidak ada transaksi pada periode ini. Ubah filter waktu terlebih dahulu.')
+      return
+    }
+
     setIsExporting(true)
     await downloadPdf('pdf-laporan', `Laporan_Pendapatan_Museum_${new Date().getTime()}.pdf`)
     
@@ -241,7 +247,7 @@ export default function LaporanPage() {
         </div>
       </div>
 
-      {/* PDF Template (Hidden from screen) */}
+      {/* PDF Template (Hidden from screen — temporarily moved on-screen by exportPdf.js) */}
       <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
         <div 
           id="pdf-laporan" 
@@ -278,7 +284,33 @@ export default function LaporanPage() {
             </div>
           </div>
 
-          <h3 className="text-lg font-bold text-museum-brown mb-3">Detail Pendapatan ({visitorStatus})</h3>
+          {/* WNI Table */}
+          <h3 className="text-lg font-bold text-museum-brown mb-3">Detail Pendapatan WNI</h3>
+          <table className="w-full text-left border-collapse mb-8">
+            <thead>
+              <tr className="bg-museum-brown text-white">
+                <th className="p-3 text-xs font-bold border border-museum-brown">Kategori</th>
+                <th className="p-3 text-xs font-bold border border-museum-brown">Jumlah Pengunjung</th>
+                <th className="p-3 text-xs font-bold border border-museum-brown text-right">Pendapatan</th>
+                <th className="p-3 text-xs font-bold border border-museum-brown text-right">Presentase</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reportData.detailKategoriWNI.length === 0 ? (
+                <tr><td colSpan={4} className="p-3 text-center text-sm text-gray-500 border border-gray-200">Belum ada transaksi WNI</td></tr>
+              ) : reportData.detailKategoriWNI.map((row, idx) => (
+                <tr key={idx} className="border-b border-gray-200">
+                  <td className="p-3 text-sm font-semibold text-gray-800 border border-gray-200">{row.kategori}</td>
+                  <td className="p-3 text-sm text-gray-700 border border-gray-200">{row.jumlah} Orang</td>
+                  <td className="p-3 text-sm font-bold text-gray-800 text-right border border-gray-200">{formatRp(row.pendapatan)}</td>
+                  <td className="p-3 text-sm text-gray-700 text-right border border-gray-200">{row.presentase}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* WNA Table */}
+          <h3 className="text-lg font-bold text-museum-brown mb-3">Detail Pendapatan WNA</h3>
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-museum-brown text-white">
@@ -289,9 +321,9 @@ export default function LaporanPage() {
               </tr>
             </thead>
             <tbody>
-              {currentData.length === 0 ? (
-                <tr><td colSpan={4} className="p-3 text-center text-sm text-gray-500 border border-gray-200">Belum ada transaksi</td></tr>
-              ) : currentData.map((row, idx) => (
+              {reportData.detailKategoriWNA.length === 0 ? (
+                <tr><td colSpan={4} className="p-3 text-center text-sm text-gray-500 border border-gray-200">Belum ada transaksi WNA</td></tr>
+              ) : reportData.detailKategoriWNA.map((row, idx) => (
                 <tr key={idx} className="border-b border-gray-200">
                   <td className="p-3 text-sm font-semibold text-gray-800 border border-gray-200">{row.kategori}</td>
                   <td className="p-3 text-sm text-gray-700 border border-gray-200">{row.jumlah} Orang</td>
