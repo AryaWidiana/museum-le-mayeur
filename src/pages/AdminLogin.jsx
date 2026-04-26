@@ -22,20 +22,25 @@ export default function AdminLogin() {
         body: JSON.stringify({ username, password })
       })
 
-      const data = await response.json()
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Respons server tidak valid. Pastikan URL Backend benar dan server menyala.');
+      }
 
-      if (response.ok && data.success) {
+      if (response.ok && data?.success && data?.data?.token) {
         // Simpan token JWT dan status login
         sessionStorage.setItem('admin_token', data.data.token)
         sessionStorage.setItem('admin_logged_in', 'true')
-        sessionStorage.setItem('admin_user', data.data.username)
+        sessionStorage.setItem('admin_user', data.data.username || username)
         window.location.href = '/kasir'
       } else {
-        setError(data.message || 'Username atau password salah!')
+        setError(data?.message || 'Username atau password salah, atau data payload (token) tidak ditemukan!')
       }
     } catch (err) {
       console.error('Login Error:', err)
-      setError('Gagal terhubung ke server. Pastikan backend berjalan.')
+      setError(err.message === 'Respons server tidak valid. Pastikan URL Backend benar dan server menyala.' ? err.message : 'Gagal terhubung ke server. Periksa koneksi internet dan URL Vercel.')
     } finally {
       setLoading(false)
     }
