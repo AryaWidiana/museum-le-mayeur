@@ -1,20 +1,16 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "src/app.js",
-      "use": "@vercel/node"
-    }
-  ],
+  "builds": [{ "src": "src/app.js", "use": "@vercel/node" }],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+      },
       "dest": "src/app.js"
-    }
-  ],
-  "functions": {
-    "src/app.js": {
-      "runtime": "nodejs18.x"
-    }
-  }
+    },
+    { "src": "/(.*)", "dest": "src/app.js" }
+  ]
 }

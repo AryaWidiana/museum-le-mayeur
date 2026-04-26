@@ -22,12 +22,7 @@ export default function AdminLogin() {
         body: JSON.stringify({ username, password })
       })
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        throw new Error('Respons server tidak valid. Pastikan URL Backend benar dan server menyala.');
-      }
+      const data = await response.json().catch(() => ({}));
 
       if (response.ok && data?.success && data?.data?.token) {
         // Simpan token JWT dan status login

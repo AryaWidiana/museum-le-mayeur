@@ -23,7 +23,7 @@ export default function ManajemenKategoriPage() {
       const res = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur-pi7e5zsde-aryawidianas-projects.vercel.app')}/api/categories`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
         setCategories(data.data)
       }
@@ -52,7 +52,7 @@ export default function ManajemenKategoriPage() {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
         fetchCategories()
       } else {
@@ -96,7 +96,7 @@ export default function ManajemenKategoriPage() {
         },
         body: JSON.stringify(payload)
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
         setShowModal(false)
         fetchCategories()

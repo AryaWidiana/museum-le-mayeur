@@ -33,7 +33,7 @@ export default function TransaksiPage() {
         const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur-pi7e5zsde-aryawidianas-projects.vercel.app')}/api/transactions?limit=500`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
-        const data = await response.json()
+        const data = await response.json().catch(() => ({}));
         if (response.ok && data.success) {
           // Map backend transaction to frontend format
           // the api returns data.data as the array of transactions

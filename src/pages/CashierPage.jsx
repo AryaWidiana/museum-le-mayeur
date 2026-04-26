@@ -136,7 +136,7 @@ export default function CashierPage() {
         })
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (response.ok && data.success) {
         // Simpan notifikasi detail ke localStorage
