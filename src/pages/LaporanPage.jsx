@@ -247,8 +247,8 @@ export default function LaporanPage() {
         </div>
       </div>
 
-      {/* PDF Template (Hidden from screen — temporarily moved on-screen by exportPdf.js) */}
-      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+      {/* PDF Template — hidden but fully laid out so clone inherits computed styles */}
+      <div style={{ overflow: 'hidden', height: 0, position: 'relative' }}>
         <div 
           id="pdf-laporan" 
           className="bg-white" 

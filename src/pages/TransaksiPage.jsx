@@ -273,8 +273,8 @@ export default function TransaksiPage() {
         </div>
       </div>
 
-      {/* PDF Template (Hidden from screen) */}
-      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+      {/* PDF Template — hidden but fully laid out so clone inherits computed styles */}
+      <div style={{ overflow: 'hidden', height: 0, position: 'relative' }}>
         <div 
           id="pdf-transaksi" 
           className="bg-white" 
