@@ -249,12 +249,12 @@ export default function LaporanPage() {
       {/* ═══════════ PDF TEMPLATE (hidden, captured by exportPdf.js clone strategy) ═══════════ */}
       <div style={{ overflow: 'hidden', height: 0, position: 'relative' }}>
         <div id="pdf-laporan" style={{
-          width: '1050px',
+          width: '1122px',
           background: '#fff',
           fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
           color: '#2D1810',
           boxSizing: 'border-box',
-          padding: '40px 48px',
+          padding: '48px 64px',
         }}>
 
           {/* ── HEADER ── */}
