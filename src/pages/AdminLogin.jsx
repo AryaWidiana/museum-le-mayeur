@@ -14,7 +14,7 @@ export default function AdminLogin() {
     setLoading(true)
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      const response = await fetch(`${(import.meta.env.VITE_API_URL || 'https://museum-le-mayeur-pi7e5zsde-aryawidianas-projects.vercel.app')}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

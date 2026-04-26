@@ -15,7 +15,13 @@ import { errorHandler } from './middlewares/errorHandler.js';
 const app = express();
 
 // Middleware parsing JSON & CORS
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  credentials: true
+}));
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 
 // --- ROUTES ---
