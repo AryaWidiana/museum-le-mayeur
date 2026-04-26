@@ -59,29 +59,12 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const adminId = req.admin.id;
-    const { name, username, profilePic } = req.body;
+    const { name, profilePic } = req.body;
 
-    // Build the update data object dynamically
+    // Build the update data object dynamically (username is NOT updatable from profile)
     const updateData = {};
     if (name !== undefined) updateData.name = name;
     if (profilePic !== undefined) updateData.profilePic = profilePic;
-
-    // Handle username update with uniqueness check
-    if (username !== undefined) {
-      // Check if the new username is already taken by another admin
-      const existingAdmin = await prisma.admin.findUnique({
-        where: { username }
-      });
-
-      if (existingAdmin && existingAdmin.id !== adminId) {
-        return res.status(400).json({
-          success: false,
-          message: 'Username sudah digunakan oleh admin lain'
-        });
-      }
-
-      updateData.username = username;
-    }
 
     const updated = await prisma.admin.update({
       where: { id: Number(adminId) },
@@ -89,12 +72,12 @@ export const updateProfile = async (req, res) => {
       select: { id: true, username: true, name: true, profilePic: true, role: true }
     });
 
-    if (username !== undefined || name !== undefined) {
+    if (name !== undefined) {
       await prisma.activityLog.create({
         data: {
           type: 'edit',
           title: 'Update Profil',
-          detail: `Admin memperbarui profil (username/nama).`
+          detail: `Admin memperbarui nama profil menjadi "${name}".`
         }
       });
     }

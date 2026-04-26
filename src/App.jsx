@@ -2,15 +2,17 @@ import React, { Suspense } from 'react'
 import Navbar from './components/Navbar'
 import Hero from './sections/Hero'
 import BrushFilter from './components/BrushFilter'
-import AdminLogin from './pages/AdminLogin'
-import CashierPage from './pages/CashierPage'
-import AdminDashboard from './pages/AdminDashboard'
-import TransaksiPage from './pages/TransaksiPage'
-import StatistikPage from './pages/StatistikPage'
-import LaporanPage from './pages/LaporanPage'
-import ManajemenKategoriPage from './pages/ManajemenKategoriPage'
-import RiwayatPage from './pages/RiwayatPage'
-import ProfilPage from './pages/ProfilPage'
+
+// Lazy-load admin pages — only downloaded when the user navigates to them
+const AdminLogin = React.lazy(() => import('./pages/AdminLogin'))
+const CashierPage = React.lazy(() => import('./pages/CashierPage'))
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'))
+const TransaksiPage = React.lazy(() => import('./pages/TransaksiPage'))
+const StatistikPage = React.lazy(() => import('./pages/StatistikPage'))
+const LaporanPage = React.lazy(() => import('./pages/LaporanPage'))
+const ManajemenKategoriPage = React.lazy(() => import('./pages/ManajemenKategoriPage'))
+const RiwayatPage = React.lazy(() => import('./pages/RiwayatPage'))
+const ProfilPage = React.lazy(() => import('./pages/ProfilPage'))
 
 // Lazy-load below-the-fold sections for faster initial paint
 const Statistik = React.lazy(() => import('./sections/Statistik'))
@@ -20,6 +22,18 @@ const TiketJadwal = React.lazy(() => import('./sections/TiketJadwal'))
 const KoleksiMuseum = React.lazy(() => import('./sections/KoleksiMuseum'))
 const SejarahMuseum = React.lazy(() => import('./sections/SejarahMuseum'))
 const Footer = React.lazy(() => import('./sections/Footer'))
+
+// Loading spinner for admin pages
+function AdminFallback() {
+  return (
+    <div className="flex items-center justify-center h-screen bg-[#F8F6F1]">
+      <div className="text-center">
+        <div className="w-10 h-10 border-3 border-museum-gold/30 border-t-museum-gold rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-sm text-museum-brown/60 font-medium">Memuat halaman...</p>
+      </div>
+    </div>
+  )
+}
 
 // Minimal loading placeholder that matches the page aesthetic
 function SectionFallback() {
@@ -34,17 +48,16 @@ function App() {
   const path = window.location.pathname
 
   if (path === '/admin') {
-    return <AdminLogin />
+    return <Suspense fallback={<AdminFallback />}><AdminLogin /></Suspense>
   }
 
   if (path === '/kasir') {
-    // Protect kasir route — redirect to /admin if not logged in
     const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true'
     if (!isLoggedIn) {
       window.location.href = '/admin'
       return null
     }
-    return <CashierPage />
+    return <Suspense fallback={<AdminFallback />}><CashierPage /></Suspense>
   }
 
   if (path === '/dashboard') {
@@ -53,7 +66,7 @@ function App() {
       window.location.href = '/admin'
       return null
     }
-    return <AdminDashboard />
+    return <Suspense fallback={<AdminFallback />}><AdminDashboard /></Suspense>
   }
 
   if (path === '/transaksi') {
@@ -62,7 +75,7 @@ function App() {
       window.location.href = '/admin'
       return null
     }
-    return <TransaksiPage />
+    return <Suspense fallback={<AdminFallback />}><TransaksiPage /></Suspense>
   }
 
   if (path === '/statistik-admin') {
@@ -71,7 +84,7 @@ function App() {
       window.location.href = '/admin'
       return null
     }
-    return <StatistikPage />
+    return <Suspense fallback={<AdminFallback />}><StatistikPage /></Suspense>
   }
 
   if (path === '/laporan') {
@@ -80,7 +93,7 @@ function App() {
       window.location.href = '/admin'
       return null
     }
-    return <LaporanPage />
+    return <Suspense fallback={<AdminFallback />}><LaporanPage /></Suspense>
   }
 
   if (path === '/manajemen-kategori') {
@@ -89,7 +102,7 @@ function App() {
       window.location.href = '/admin'
       return null
     }
-    return <ManajemenKategoriPage />
+    return <Suspense fallback={<AdminFallback />}><ManajemenKategoriPage /></Suspense>
   }
 
   if (path === '/riwayat') {
@@ -98,7 +111,7 @@ function App() {
       window.location.href = '/admin'
       return null
     }
-    return <RiwayatPage />
+    return <Suspense fallback={<AdminFallback />}><RiwayatPage /></Suspense>
   }
 
   if (path === '/profil') {
@@ -107,7 +120,7 @@ function App() {
       window.location.href = '/admin'
       return null
     }
-    return <ProfilPage />
+    return <Suspense fallback={<AdminFallback />}><ProfilPage /></Suspense>
   }
 
   return (

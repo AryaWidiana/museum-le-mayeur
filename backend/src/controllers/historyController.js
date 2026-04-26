@@ -7,12 +7,19 @@ export const getHistory = async (req, res) => {
     const transactions = await prisma.transaction.findMany({
       orderBy: { createdAt: 'desc' },
       take: limit,
-      include: { category: true }
+      select: {
+        id: true,
+        name: true,
+        totalPrice: true,
+        payment: true,
+        createdAt: true,
+        category: { select: { name: true, type: true } }
+      }
     });
 
     const activities = await prisma.activityLog.findMany({
       orderBy: { createdAt: 'desc' },
-      take: limit
+      take: 20
     });
 
     res.status(200).json({

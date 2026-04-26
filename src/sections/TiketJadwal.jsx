@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useReveal, useStaggerReveal } from '../hooks/useScrollAnimation'
 
 const ticketDataWNI = [

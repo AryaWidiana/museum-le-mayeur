@@ -34,12 +34,19 @@ export const getDashboardSummary = async (req, res) => {
 
     const totalRevenue = aggregations._sum.totalPrice || 0;
 
-    // 3. Ambil data transaksi beserta kategori
+    // 3. Ambil data transaksi beserta kategori (optimized: select only needed columns)
     const transactions = await prisma.transaction.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      take: 100, // batasi return payload agar tidak terlalu besar
-      include: { category: true }
+      take: 50,
+      select: {
+        id: true,
+        name: true,
+        totalPrice: true,
+        payment: true,
+        createdAt: true,
+        category: { select: { name: true, type: true } }
+      }
     });
 
     // 4. Data Weekly Chart (7 Hari Terakhir)
