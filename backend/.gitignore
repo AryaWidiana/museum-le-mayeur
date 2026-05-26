@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+.env.*
+
+# Prisma generated
+# (Prisma Client di-generate saat install, tidak perlu di-track)
