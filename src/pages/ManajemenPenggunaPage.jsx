@@ -334,8 +334,12 @@ export default function ManajemenPenggunaPage() {
                   </div>
 
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-museum-gold/30 to-museum-brown/20 flex items-center justify-center text-museum-brown font-black text-xl shadow-inner border-2 border-white">
-                      {(row.name || row.username || '?').charAt(0).toUpperCase()}
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-museum-gold/30 to-museum-brown/20 flex items-center justify-center text-museum-brown font-black text-xl shadow-inner border-2 border-white overflow-hidden shrink-0">
+                      {row.profilePic ? (
+                        <img src={row.profilePic} alt={row.name || row.username} className="w-full h-full object-cover" />
+                      ) : (
+                        (row.name || row.username || '?').charAt(0).toUpperCase()
+                      )}
                     </div>
                     <div>
                       <h4 className="text-base font-bold text-museum-brown leading-tight">{row.name || '-'}</h4>

@@ -394,7 +394,7 @@ export default function TransaksiPage() {
 
         {/* ─── Table ───────────────────────────────────────── */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex-1 flex flex-col min-h-0 overflow-hidden relative z-0">
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-y-auto max-h-[calc(100vh-280px)]">
             <table className="w-full whitespace-nowrap">
               <thead className="sticky top-0 z-10 bg-[#F8F6F1] shadow-sm">
                 <tr className="text-museum-brown border-b border-gray-200">
