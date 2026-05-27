@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import cashierBg from '../assets/cashier/cashier-bg.png'
 
+
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 function formatRupiah(num) {
   return 'Rp ' + Number(num || 0).toLocaleString('id-ID')
 }
@@ -96,7 +98,7 @@ export default function CashierPage() {
     const fetchCategories = async () => {
       try {
         setCatLoading(true)
-        const res = await fetch('http://localhost:5000/api/categories', {
+        const res = await fetch(`${baseURL}/categories`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
         const data = await res.json()
@@ -133,7 +135,7 @@ export default function CashierPage() {
     try {
       setSubmitting(true)
       const token = sessionStorage.getItem('admin_token')
-      const response = await fetch('http://localhost:5000/api/transactions', {
+      const response = await fetch(`${baseURL}/transactions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

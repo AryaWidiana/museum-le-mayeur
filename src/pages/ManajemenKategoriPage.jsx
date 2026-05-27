@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '../components/AdminLayout'
 
-const BASE = 'http://localhost:5000'
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 
 function authHeaders() {
   const token = sessionStorage.getItem('admin_token')
@@ -53,7 +53,7 @@ function CategoryModal({ open, mode, initial, onClose, onSaved }) {
     try {
       setSaving(true)
       setErr('')
-      const url = mode === 'edit' ? `${BASE}/api/categories/${initial.id}` : `${BASE}/api/categories`
+      const url = mode === 'edit' ? `${baseURL}/categories/${initial.id}` : `${baseURL}/categories`
       const method = mode === 'edit' ? 'PUT' : 'POST'
       const res = await fetch(url, {
         method,
@@ -147,7 +147,7 @@ function DeleteModal({ open, category, onClose, onDeleted }) {
     try {
       setDeleting(true)
       setErr('')
-      const res = await fetch(`${BASE}/api/categories/${category.id}`, {
+      const res = await fetch(`${baseURL}/categories/${category.id}`, {
         method: 'DELETE',
         headers: authHeaders(),
       })
@@ -218,7 +218,7 @@ export default function ManajemenKategoriPage() {
     try {
       setLoading(true)
       setError(null)
-      const res = await fetch(`${BASE}/api/categories`, { headers: authHeaders() })
+      const res = await fetch(`${baseURL}/categories`, { headers: authHeaders() })
       const data = await res.json()
       if (res.ok && data.success) {
         setCategories(data.data || [])

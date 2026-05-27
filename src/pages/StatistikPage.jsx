@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import AdminLayout from '../components/AdminLayout'
 
+
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 // ─── Breakdown Card ─────────────────────────────────────────
 function BreakdownCard({ label, value, max, accent = 'museum-brown' }) {
   const pct = max > 0 ? Math.max((value / max) * 100, 3) : 0
@@ -109,11 +111,11 @@ export default function StatistikPage() {
         setLoading(true)
 
         // 1. Fetch statistik breakdown WNI/WNA per kategori nama
-        const statsRes = await fetch('http://localhost:5000/api/statistics', { headers })
+        const statsRes = await fetch(`${baseURL}/statistics`, { headers })
         const statsData = await statsRes.json()
 
         // 2. Fetch semua transaksi (limit besar untuk statistik)
-        const txRes = await fetch('http://localhost:5000/api/transactions?limit=100', { headers })
+        const txRes = await fetch(`${baseURL}/transactions?limit=100`, { headers })
         const txData = await txRes.json()
 
         if (statsRes.ok && statsData.success) {

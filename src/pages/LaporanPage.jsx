@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import AdminLayout from '../components/AdminLayout'
 
+
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 function formatRp(num) {
   if (!num) return 'Rp 0'
   return 'Rp ' + Number(num).toLocaleString('id-ID')
@@ -52,11 +54,11 @@ export default function LaporanPage() {
         setLoading(true)
 
         // 1. Dashboard summary untuk stat cards
-        const dashRes = await fetch('http://localhost:5000/api/dashboard', { headers })
+        const dashRes = await fetch(`${baseURL}/dashboard`, { headers })
         const dashData = await dashRes.json()
 
         // 2. Semua transaksi untuk tabel kategori
-        const txRes = await fetch('http://localhost:5000/api/transactions?limit=500', { headers })
+        const txRes = await fetch(`${baseURL}/transactions?limit=500`, { headers })
         const txData = await txRes.json()
 
         if (dashRes.ok && dashData.success) {

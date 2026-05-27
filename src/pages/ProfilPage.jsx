@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import AdminLayout from '../components/AdminLayout'
 import { useUser } from '../context/UserContext'
 
-const BASE = 'http://localhost:5000'
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 
 // ─── Helpers ──────────────────────────────────────────────────
 function authHeaders() {
@@ -124,7 +124,7 @@ function AddActivityModal({ open, onClose, onSaved }) {
     try {
       setSaving(true)
       setErr('')
-      const res = await fetch(`${BASE}/api/activities`, {
+      const res = await fetch(`${baseURL}/activities`, {
         method: 'POST',
         headers: authHeaders(),
         body: JSON.stringify(form),
@@ -239,7 +239,7 @@ export default function ProfilPage() {
   const fetchProfile = useCallback(async () => {
     try {
       setProfileLoading(true)
-      const res = await fetch(`${BASE}/api/auth/me`, { headers: authHeaders() })
+      const res = await fetch(`${baseURL}/auth/me`, { headers: authHeaders() })
       const data = await res.json()
       if (res.ok && data.success) {
         setProfile(data.data)
@@ -253,7 +253,7 @@ export default function ProfilPage() {
   const fetchActivities = useCallback(async () => {
     try {
       setActLoading(true)
-      const res = await fetch(`${BASE}/api/activities`, { headers: authHeaders() })
+      const res = await fetch(`${baseURL}/activities`, { headers: authHeaders() })
       const data = await res.json()
       if (res.ok && data.success) setActivities(data.data || [])
     } catch { /* silently fail */ }
@@ -279,7 +279,7 @@ export default function ProfilPage() {
       setProfile(prev => prev ? { ...prev, profilePic: base64 } : prev)
       try {
         setUploadingPhoto(true)
-        const res = await fetch(`${BASE}/api/auth/me`, {
+        const res = await fetch(`${baseURL}/auth/me`, {
           method: 'PATCH',
           headers: authHeaders(),
           body: JSON.stringify({ profilePic: base64 }),
@@ -308,7 +308,7 @@ export default function ProfilPage() {
     if (!window.confirm('Hapus kegiatan ini?')) return
     try {
       setDeleting(id)
-      const res = await fetch(`${BASE}/api/activities/${id}`, {
+      const res = await fetch(`${baseURL}/activities/${id}`, {
         method: 'DELETE',
         headers: authHeaders(),
       })

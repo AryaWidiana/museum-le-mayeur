@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '../components/AdminLayout'
 
-const BASE = 'http://localhost:5000'
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 
 function authHeaders() {
   const token = sessionStorage.getItem('admin_token')
@@ -96,7 +96,7 @@ export default function TransaksiPage() {
   // ─── Export PDF (Print) ───────────────────────────────────
   const handleExportPDF = async () => {
     try {
-      await fetch(`${BASE}/api/logs/export`, {
+      await fetch(`${baseURL}/logs/export`, {
         method: 'POST',
         headers: authHeaders(),
         body: JSON.stringify({ description: 'Admin mengekspor laporan transaksi ke PDF' })
@@ -163,8 +163,8 @@ export default function TransaksiPage() {
       setError(null)
       
       const [txRes, catRes] = await Promise.all([
-        fetch(`${BASE}/api/transactions?limit=${LIMIT}&page=${page}`, { headers: authHeaders() }),
-        fetch(`${BASE}/api/categories`, { headers: authHeaders() })
+        fetch(`${baseURL}/transactions?limit=${LIMIT}&page=${page}`, { headers: authHeaders() }),
+        fetch(`${baseURL}/categories`, { headers: authHeaders() })
       ])
 
       const txData = await txRes.json()
@@ -198,7 +198,7 @@ export default function TransaksiPage() {
     setIsSubmitting(true)
 
     try {
-      const res = await fetch(`${BASE}/api/transactions/${selectedTransaction.id}`, {
+      const res = await fetch(`${baseURL}/transactions/${selectedTransaction.id}`, {
         method: 'PUT',
         headers: authHeaders(),
         body: JSON.stringify({ name: editName, categoryId: parseInt(editCategoryId) })
@@ -223,7 +223,7 @@ export default function TransaksiPage() {
     setIsDeleting(true)
 
     try {
-      const res = await fetch(`${BASE}/api/transactions/${selectedTransaction.id}`, {
+      const res = await fetch(`${baseURL}/transactions/${selectedTransaction.id}`, {
         method: 'DELETE',
         headers: authHeaders()
       })

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import AdminLayout from '../components/AdminLayout'
 
-const BASE = 'http://localhost:5000'
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 
 function authHeaders() {
   const token = sessionStorage.getItem('admin_token')
@@ -77,7 +77,7 @@ export default function RiwayatPage() {
   const fetchLogs = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await fetch(`${BASE}/api/logs?page=${page}&limit=${LIMIT}`, { headers: authHeaders() })
+      const res = await fetch(`${baseURL}/logs?page=${page}&limit=${LIMIT}`, { headers: authHeaders() })
       const data = await res.json()
       if (res.ok && data.success) {
         setLogs(data.data || [])

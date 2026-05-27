@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import AdminLayout from '../components/AdminLayout'
 
+
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 // ─── Helpers ─────────────────────────────────────────────────
 const DAY_LABELS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des']
@@ -104,7 +106,7 @@ export default function AdminDashboard() {
 
     const fetchDashboard = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/dashboard', { headers })
+        const res = await fetch(`${baseURL}/dashboard`, { headers })
         const data = await res.json()
         if (res.ok && data.success) {
           const txList = data.data.transactions || []
@@ -157,7 +159,7 @@ export default function AdminDashboard() {
 
     const fetchStatistics = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/statistics', { headers })
+        const res = await fetch(`${baseURL}/statistics`, { headers })
         const data = await res.json()
         if (res.ok && data.success) {
           // Map PENDAPATAN (bukan jumlah pengunjung) per hari ke 7 hari terakhir

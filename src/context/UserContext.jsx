@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 
 const UserContext = createContext(null)
 
-const BASE = 'http://localhost:5000'
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 
 function authHeaders() {
   const token = sessionStorage.getItem('admin_token')
@@ -23,7 +23,7 @@ export function UserProvider({ children }) {
     const token = sessionStorage.getItem('admin_token')
     if (!token) { setUserLoading(false); return }
     try {
-      const res = await fetch(`${BASE}/api/auth/me`, { headers: authHeaders() })
+      const res = await fetch(`${baseURL}/auth/me`, { headers: authHeaders() })
       const data = await res.json()
       if (res.ok && data.success) setUser(data.data)
     } catch { /* ignore */ }
@@ -40,7 +40,7 @@ export function UserProvider({ children }) {
     const token = sessionStorage.getItem('admin_token')
     if (!token) return
     try {
-      const res = await fetch(`${BASE}/api/transactions?limit=1`, {
+      const res = await fetch(`${baseURL}/transactions?limit=1`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       const data = await res.json()
