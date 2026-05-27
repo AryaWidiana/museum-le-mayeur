@@ -1,6 +1,6 @@
 import express from 'express';
 import { createTransaction, getTransactions, updateTransaction, deleteTransaction } from '../controllers/transactionController.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, requireSuperAdmin } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -15,9 +15,9 @@ router.post('/', createTransaction);
 router.get('/', getTransactions);
 
 // Endpoint: PUT /api/transactions/:id
-router.put('/:id', updateTransaction);
+router.put('/:id', requireSuperAdmin, updateTransaction);
 
 // Endpoint: DELETE /api/transactions/:id
-router.delete('/:id', deleteTransaction);
+router.delete('/:id', requireSuperAdmin, deleteTransaction);
 
 export default router;

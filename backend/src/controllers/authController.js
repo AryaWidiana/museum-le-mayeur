@@ -65,7 +65,7 @@ export const login = async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: admin.id, username: admin.username },
+      { id: admin.id, username: admin.username, role: admin.role },
       JWT_SECRET,
       { expiresIn: '1d' } // Token berlaku 1 hari
     );
@@ -76,6 +76,7 @@ export const login = async (req, res) => {
       data: {
         id: admin.id,
         username: admin.username,
+        role: admin.role,
         token,
       },
     });

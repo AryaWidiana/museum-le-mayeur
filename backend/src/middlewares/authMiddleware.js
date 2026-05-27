@@ -28,3 +28,11 @@ export const protect = (req, res, next) => {
     return res.status(401).json({ success: false, message: 'Tidak ada token, otorisasi ditolak' });
   }
 };
+
+export const requireSuperAdmin = (req, res, next) => {
+  if (req.admin && req.admin.role === 'SUPER_ADMIN') {
+    next();
+  } else {
+    res.status(403).json({ success: false, message: 'Akses ditolak, Anda bukan Super Admin' });
+  }
+};
