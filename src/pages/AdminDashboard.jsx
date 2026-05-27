@@ -211,9 +211,70 @@ export default function AdminDashboard() {
     }
   })
 
+  // Global status control logic
+  const [globalStatus, setGlobalStatus] = useState('Buka')
+  const [statusSaving, setStatusSaving] = useState(false)
+  const isAdminSuper = sessionStorage.getItem('admin_role') === 'SUPER_ADMIN'
+
+  const handleStatusChange = async (newStatus) => {
+    setGlobalStatus(newStatus)
+    setStatusSaving(true)
+    try {
+      // Mock API call based on user's instruction to use fetch API with state management
+      await fetch(`${baseURL}/settings/status`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('admin_token')}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      })
+    } catch (err) {
+      console.error('Failed to update status', err)
+    } finally {
+      setStatusSaving(false)
+    }
+  }
+
   return (
     <AdminLayout activePage="Dashboard" title="Dashboard" subtitle="Ringkasan data hari ini">
       <div className="space-y-6">
+        
+        {/* Master Status Control for Super Admin */}
+        {isAdminSuper && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-bold text-museum-brown flex items-center gap-2">
+                <svg className="w-4 h-4 text-museum-gold" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Master Status Operasional
+              </h3>
+              <p className="text-[10px] text-gray-400 mt-0.5">Kontrol status operasional museum secara global untuk pengunjung.</p>
+            </div>
+            <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-100 relative">
+              {['Buka', 'Tutup Sementara/Renovasi', 'Libur Hari Raya'].map(s => (
+                <button
+                  key={s}
+                  onClick={() => handleStatusChange(s)}
+                  disabled={statusSaving}
+                  className={`px-3 py-1.5 text-[11px] font-bold rounded-md transition-all whitespace-nowrap ${
+                    globalStatus === s
+                      ? s === 'Buka' ? 'bg-green-500 text-white shadow-sm shadow-green-500/30'
+                        : s === 'Libur Hari Raya' ? 'bg-yellow-500 text-white shadow-sm shadow-yellow-500/30'
+                        : 'bg-red-500 text-white shadow-sm shadow-red-500/30'
+                      : 'text-gray-500 hover:text-museum-brown hover:bg-white disabled:opacity-50'
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+              {statusSaving && (
+                <div className="absolute right-[-24px] top-1/2 -translate-y-1/2">
+                  <div className="w-4 h-4 border-2 border-museum-gold/30 border-t-museum-gold rounded-full animate-spin" />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard

@@ -16,19 +16,27 @@ function MenuIcon({ type, className = "w-5 h-5" }) {
   }
 }
 
-const sidebarMenuItems = [
-  { section: 'MENU UTAMA', items: [
-    { label: 'Dashboard', icon: 'grid', href: '/dashboard' },
-    { label: 'Transaksi', icon: 'receipt', href: '/transaksi' },
-    { label: 'Statistik', icon: 'chart', href: '/statistik-admin' },
-    { label: 'Laporan', icon: 'file', href: '/laporan' },
-  ]},
-  { section: 'MANAJEMEN', items: [
-    { label: 'Manajemen Kategori', icon: 'folder', href: '/manajemen-kategori' },
-    { label: 'Riwayat', icon: 'clock', href: '/riwayat' },
-    { label: 'Profil', icon: 'user', href: '/profil' },
-  ]},
-]
+const getSidebarMenuItems = (role) => {
+  const items = [
+    { section: 'MENU UTAMA', items: [
+      { label: 'Dashboard', icon: 'grid', href: '/dashboard' },
+      { label: 'Transaksi', icon: 'receipt', href: '/transaksi' },
+      { label: 'Statistik', icon: 'chart', href: '/statistik-admin' },
+      { label: 'Laporan', icon: 'file', href: '/laporan' },
+    ]},
+    { section: 'MANAJEMEN', items: [
+      { label: 'Manajemen Kategori', icon: 'folder', href: '/manajemen-kategori', reqRole: 'SUPER_ADMIN' },
+      { label: 'Manajemen Pengguna', icon: 'user', href: '/manajemen-pengguna', reqRole: 'SUPER_ADMIN' },
+      { label: 'Riwayat', icon: 'clock', href: '/riwayat' },
+      { label: 'Profil', icon: 'user', href: '/profil' },
+    ]},
+  ]
+
+  return items.map(sec => ({
+    ...sec,
+    items: sec.items.filter(item => !item.reqRole || item.reqRole === role)
+  })).filter(sec => sec.items.length > 0)
+}
 
 export default function AdminLayout({ activePage, title, subtitle, headerAction, children }) {
   // ─── Consume UserContext ───────────────────────────────────
@@ -58,10 +66,15 @@ export default function AdminLayout({ activePage, title, subtitle, headerAction,
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Role check for menus
+  const actualRole = user?.role || sessionStorage.getItem('admin_role') || 'ADMIN'
+  const currentMenuItems = getSidebarMenuItems(actualRole)
+
   const handleLogout = () => {
     sessionStorage.removeItem('admin_logged_in')
     sessionStorage.removeItem('admin_token')
     sessionStorage.removeItem('admin_user')
+    sessionStorage.removeItem('admin_role')
     window.location.href = '/admin'
   }
 
@@ -90,7 +103,7 @@ export default function AdminLayout({ activePage, title, subtitle, headerAction,
 
         {/* Nav */}
         <nav className="flex-1 py-4 px-3 space-y-5 overflow-y-auto">
-          {sidebarMenuItems.map((sec) => (
+          {currentMenuItems.map((sec) => (
             <div key={sec.section}>
               <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest px-2 mb-2">{sec.section}</p>
               <ul className="space-y-1">

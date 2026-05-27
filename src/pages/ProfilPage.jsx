@@ -19,9 +19,8 @@ function formatDate(dateStr) {
 
 // ─── Status badge styles ──────────────────────────────────────
 const STATUS_STYLES = {
-  Buka:  { badge: 'bg-green-100 text-green-700',  dot: 'bg-green-500' },
+  Hadir: { badge: 'bg-green-100 text-green-700',  dot: 'bg-green-500' },
   Libur: { badge: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-400' },
-  Tutup: { badge: 'bg-red-100 text-red-600',       dot: 'bg-red-500' },
 }
 
 // ─── Profile Field ────────────────────────────────────────────
@@ -69,7 +68,9 @@ function ActivityItem({ activity, onDelete, deleting }) {
   const dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab']
   const dateDay = dayNames[d.getDay()]
   const fullDate = formatDate(activity.date)
-  const style = STATUS_STYLES[activity.status] || STATUS_STYLES['Buka']
+  // For backwards compatibility, map 'Buka' to 'Hadir' and 'Tutup' to 'Libur' in UI if old data exists
+  const statusLabel = activity.status === 'Buka' ? 'Hadir' : (activity.status === 'Tutup' ? 'Libur' : activity.status)
+  const style = STATUS_STYLES[statusLabel] || STATUS_STYLES['Hadir']
 
   return (
     <div className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 bg-white shadow-sm group">
@@ -81,7 +82,7 @@ function ActivityItem({ activity, onDelete, deleting }) {
         <h5 className="text-xs font-bold text-museum-brown truncate">{activity.desc}</h5>
         <div className="flex items-center gap-2 mt-1.5">
           <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${style.badge}`}>
-            {activity.status}
+            {statusLabel}
           </span>
           <span className="text-[10px] text-gray-400 truncate flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -108,12 +109,12 @@ function ActivityItem({ activity, onDelete, deleting }) {
 
 // ─── Add Activity Modal ───────────────────────────────────────
 function AddActivityModal({ open, onClose, onSaved }) {
-  const [form, setForm] = useState({ date: '', desc: '', status: 'Buka' })
+  const [form, setForm] = useState({ date: '', desc: '', status: 'Hadir' })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
 
   useEffect(() => {
-    if (open) { setForm({ date: '', desc: '', status: 'Buka' }); setErr('') }
+    if (open) { setForm({ date: '', desc: '', status: 'Hadir' }); setErr('') }
   }, [open])
 
   if (!open) return null
@@ -161,15 +162,14 @@ function AddActivityModal({ open, onClose, onSaved }) {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-museum-brown outline-none focus:border-museum-gold transition-colors" />
           </div>
           <div>
-            <label className="text-[11px] font-semibold text-museum-brown/70 mb-1 block">Status Museum</label>
-            <div className="grid grid-cols-3 gap-2">
-              {['Buka', 'Libur', 'Tutup'].map(s => (
+            <label className="text-[11px] font-semibold text-museum-brown/70 mb-1 block">Status Kehadiran</label>
+            <div className="grid grid-cols-2 gap-2">
+              {['Hadir', 'Libur'].map(s => (
                 <button type="button" key={s} onClick={() => setForm(f => ({ ...f, status: s }))}
                   className={`py-2 rounded-lg text-xs font-bold border-2 transition-all ${
                     form.status === s
-                      ? s === 'Buka' ? 'bg-green-500 text-white border-green-500'
-                        : s === 'Libur' ? 'bg-yellow-400 text-white border-yellow-400'
-                        : 'bg-red-500 text-white border-red-500'
+                      ? s === 'Hadir' ? 'bg-green-500 text-white border-green-500'
+                        : 'bg-yellow-400 text-white border-yellow-400'
                       : 'bg-white text-gray-400 border-gray-200 hover:border-gray-300'
                   }`}>
                   {s}
@@ -332,7 +332,8 @@ export default function ProfilPage() {
 
   // ─── Stat counts from real data ─────────────────────────────
   const statCounts = activities.reduce((acc, a) => {
-    acc[a.status] = (acc[a.status] || 0) + 1
+    const statusLabel = a.status === 'Buka' ? 'Hadir' : (a.status === 'Tutup' ? 'Libur' : a.status)
+    acc[statusLabel] = (acc[statusLabel] || 0) + 1
     return acc
   }, {})
 
@@ -411,21 +412,16 @@ export default function ProfilPage() {
         <div className="flex-1 min-w-0 flex flex-col gap-6 w-full">
 
           {/* Top Stats — dihitung dari data real AdminActivity */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <StatCard
-              title="Buka" value={statCounts['Buka'] || 0} subtitle="Hari museum buka"
+              title="Hadir" value={statCounts['Hadir'] || 0} subtitle="Hari staf hadir"
               colorClass="text-green-600" barColor="bg-green-400" loading={actLoading}
               icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
             />
             <StatCard
-              title="Libur" value={statCounts['Libur'] || 0} subtitle="Hari libur tercatat"
+              title="Libur" value={statCounts['Libur'] || 0} subtitle="Hari staf libur"
               colorClass="text-yellow-600" barColor="bg-yellow-400" loading={actLoading}
               icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636" /></svg>}
-            />
-            <StatCard
-              title="Tutup" value={statCounts['Tutup'] || 0} subtitle="Hari museum tutup"
-              colorClass="text-red-500" barColor="bg-red-400" loading={actLoading}
-              icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>}
             />
           </div>
 
@@ -465,9 +461,10 @@ export default function ProfilPage() {
                     )
                   }
                   // Show dot if activity exists on this day
-                  const actStyle = item.activity ? STATUS_STYLES[item.activity.status] : null
+                  const statusLabel = item.activity ? (item.activity.status === 'Buka' ? 'Hadir' : (item.activity.status === 'Tutup' ? 'Libur' : item.activity.status)) : null
+                  const actStyle = statusLabel ? STATUS_STYLES[statusLabel] : null
                   return (
-                    <div key={i} title={item.activity ? `${item.activity.desc} (${item.activity.status})` : undefined}
+                    <div key={i} title={item.activity ? `${item.activity.desc} (${statusLabel})` : undefined}
                       className="h-10 flex items-center justify-center rounded-lg text-xs font-medium text-museum-brown bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative">
                       {actStyle && (
                         <span className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full ${actStyle.dot}`} />

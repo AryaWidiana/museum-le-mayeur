@@ -26,11 +26,18 @@ export default function AdminLogin() {
       const data = await response.json()
 
       if (response.ok && data.success) {
-        // Simpan token JWT dan status login
+        // Simpan token JWT, status login, user, dan role
         sessionStorage.setItem('admin_token', data.data.token)
         sessionStorage.setItem('admin_logged_in', 'true')
         sessionStorage.setItem('admin_user', data.data.username)
-        window.location.href = '/kasir'
+        sessionStorage.setItem('admin_role', data.data.role || 'ADMIN')
+
+        // Redirect based on role
+        if (data.data.role === 'SUPER_ADMIN') {
+          window.location.href = '/dashboard'
+        } else {
+          window.location.href = '/kasir'
+        }
       } else {
         setError(data.message || 'Username atau password salah!')
       }

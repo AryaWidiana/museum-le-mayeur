@@ -9,6 +9,7 @@ import TransaksiPage from './pages/TransaksiPage'
 import StatistikPage from './pages/StatistikPage'
 import LaporanPage from './pages/LaporanPage'
 import ManajemenKategoriPage from './pages/ManajemenKategoriPage'
+import ManajemenPenggunaPage from './pages/ManajemenPenggunaPage'
 import RiwayatPage from './pages/RiwayatPage'
 import ProfilPage from './pages/ProfilPage'
 import { UserProvider } from './context/UserContext'
@@ -70,8 +71,18 @@ function App() {
 
   if (path === '/manajemen-kategori') {
     const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true'
+    const role = sessionStorage.getItem('admin_role')
     if (!isLoggedIn) { window.location.href = '/admin'; return null }
+    if (role === 'ADMIN') { window.location.href = '/kasir'; return null }
     return <UserProvider><ManajemenKategoriPage /></UserProvider>
+  }
+
+  if (path === '/manajemen-pengguna') {
+    const isLoggedIn = sessionStorage.getItem('admin_logged_in') === 'true'
+    const role = sessionStorage.getItem('admin_role')
+    if (!isLoggedIn) { window.location.href = '/admin'; return null }
+    if (role === 'ADMIN') { window.location.href = '/kasir'; return null }
+    return <UserProvider><ManajemenPenggunaPage /></UserProvider>
   }
 
   if (path === '/riwayat') {
