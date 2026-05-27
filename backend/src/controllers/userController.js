@@ -1,6 +1,16 @@
 import bcrypt from 'bcrypt';
 import prisma from '../utils/prisma.js';
 
+// Helper untuk menghitung hari kerja sejak tanggal dibuat hingga hari ini
+const getDaysBetween = (startDate, endDate) => {
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(0, 0, 0, 0);
+  const diffTime = Math.abs(end - start);
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Termasuk hari pertama
+};
+
 // GET /api/users
 export const getUsers = async (req, res) => {
   try {
@@ -11,10 +21,37 @@ export const getUsers = async (req, res) => {
         name: true,
         role: true,
         createdAt: true,
+        profilePic: true,
+        activities: {
+          where: { status: 'Hadir' },
+          select: { date: true }
+        }
       },
       orderBy: { createdAt: 'desc' },
     });
-    res.status(200).json({ success: true, data: users });
+
+    const today = new Date();
+    const formattedUsers = users.map(user => {
+      // Hitung total hari sejak akun dibuat
+      const totalDays = getDaysBetween(user.createdAt, today);
+      
+      // Karena kita hanya mencatat 1 'Hadir' per hari pada login, kita bisa asumsikan jumlah record Hadir = hari hadir.
+      // Untuk memastikan akurasi, kita bisa menghitung tanggal unik, tapi array length biasanya cukup.
+      const uniqueHadirDates = new Set(user.activities.map(a => new Date(a.date).toDateString()));
+      const totalHadir = uniqueHadirDates.size;
+      const totalLibur = Math.max(0, totalDays - totalHadir);
+
+      const { activities, ...userData } = user;
+      return {
+        ...userData,
+        stats: {
+          hadir: totalHadir,
+          libur: totalLibur
+        }
+      };
+    });
+
+    res.status(200).json({ success: true, data: formattedUsers });
   } catch (error) {
     console.error('Get Users Error:', error);
     res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server' });

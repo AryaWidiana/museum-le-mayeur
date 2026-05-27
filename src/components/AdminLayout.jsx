@@ -113,7 +113,7 @@ export default function AdminLayout({ activePage, title, subtitle, headerAction,
                     <li key={item.label}>
                       <button
                         onClick={() => item.href && (window.location.href = item.href)}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                        className={`w-full flex items-center justify-start gap-3 px-4 py-2.5 rounded-lg text-sm text-left font-medium transition-all ${
                           isActive
                             ? 'bg-museum-gold text-museum-brown-dark shadow-md'
                             : 'text-white/60 hover:text-white hover:bg-white/5'

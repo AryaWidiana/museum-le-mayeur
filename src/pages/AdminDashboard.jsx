@@ -69,16 +69,20 @@ function BarChart({ data }) {
 // ─── Stats Card ─────────────────────────────────────────────
 function StatCard({ icon, iconBg, value, change, period }) {
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[110px]">
-      <div className="flex items-start justify-between mb-3">
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconBg}`}>
+    <div className="relative overflow-hidden bg-white/80 backdrop-blur-xl rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 flex flex-col justify-between min-h-[120px] group transition-all hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+      <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-museum-gold/20 to-transparent rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+      <div className="flex items-start justify-between mb-4 relative z-10">
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-inner ${iconBg}`}>
           {icon}
         </div>
-        <span className="text-[10px] text-gray-400 font-medium">{period}</span>
+        <span className="text-[11px] text-museum-brown/50 font-bold uppercase tracking-wider bg-gray-50/50 px-2.5 py-1 rounded-full">{period}</span>
       </div>
-      <div>
-        <p className="text-xl font-bold text-museum-brown leading-tight">{value}</p>
-        <p className="text-[10px] text-green-600 mt-1">↑ {change}</p>
+      <div className="relative z-10">
+        <p className="text-2xl font-black text-museum-brown leading-tight tracking-tight">{value}</p>
+        <p className="text-[11px] font-bold text-green-600 mt-1.5 flex items-center gap-1">
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" /></svg>
+          {change}
+        </p>
       </div>
     </div>
   )

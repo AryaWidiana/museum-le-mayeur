@@ -196,6 +196,76 @@ function AddActivityModal({ open, onClose, onSaved }) {
   )
 }
 
+function EditProfileModal({ open, profile, onClose, onSaved }) {
+  const [name, setName] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [err, setErr] = useState('')
+
+  useEffect(() => {
+    if (open && profile) {
+      setName(profile.name || '')
+      setErr('')
+    }
+  }, [open, profile])
+
+  if (!open) return null
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!name.trim()) {
+      setErr('Nama profil tidak boleh kosong')
+      return
+    }
+
+    try {
+      setSaving(true)
+      const res = await fetch(`${baseURL}/auth/me`, {
+        method: 'PATCH',
+        headers: authHeaders(),
+        body: JSON.stringify({ name })
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        onSaved(data.data)
+        onClose()
+      } else {
+        setErr(data.message || 'Gagal memperbarui profil')
+      }
+    } catch {
+      setErr('Tidak dapat terhubung ke server')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4">
+        <h3 className="font-bold text-museum-brown text-lg mb-6">Edit Nama Profil</h3>
+        {err && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-lg mb-4">{err}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-[11px] font-semibold text-museum-brown/70 mb-1 block">Nama Lengkap</label>
+            <input type="text" value={name} onChange={e => setName(e.target.value)}
+              placeholder="Masukkan nama profil Anda"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-museum-brown outline-none focus:border-museum-gold transition-colors" />
+          </div>
+          <div className="flex gap-3 pt-4">
+            <button type="button" onClick={onClose}
+              className="flex-1 py-2.5 rounded-lg border-2 border-gray-200 text-museum-brown/60 text-sm font-medium hover:bg-gray-50 transition-colors">
+              Batal
+            </button>
+            <button type="submit" disabled={saving}
+              className="flex-1 py-2.5 rounded-lg bg-museum-gold text-white text-sm font-semibold hover:bg-[#d4af37] transition-colors disabled:opacity-60">
+              {saving ? 'Menyimpan...' : 'Simpan'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main Page ────────────────────────────────────────────────
 export default function ProfilPage() {
   const { updateUser } = useUser() || {}
@@ -209,6 +279,7 @@ export default function ProfilPage() {
   const [deleting, setDeleting] = useState(null) // id yang sedang dihapus
 
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false)
 
   // Calendar
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -387,9 +458,18 @@ export default function ProfilPage() {
               ? <div className="h-5 bg-gray-200 rounded w-36 animate-pulse mb-2" />
               : <h2 className="text-lg font-bold text-museum-brown">{displayName}</h2>
             }
-            <span className="mt-1 px-3 py-1 bg-museum-gold/20 text-museum-gold rounded-full text-[10px] font-bold capitalize">
+            <span className="mt-1 px-3 py-1 bg-museum-gold/20 text-museum-gold rounded-full text-[10px] font-bold capitalize mb-4">
               {displayRole}
             </span>
+
+            {/* Tombol Edit Profil */}
+            <button onClick={() => setShowEditProfileModal(true)}
+              className="mt-2 text-[11px] font-bold text-museum-brown bg-gray-50 border border-gray-200 hover:bg-gray-100 px-4 py-1.5 rounded-full flex items-center gap-1.5 transition-colors">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+              </svg>
+              Edit Nama
+            </button>
           </div>
 
           <div className="space-y-3 flex-1">
@@ -536,6 +616,10 @@ export default function ProfilPage() {
       </div>
 
       <AddActivityModal open={showAddModal} onClose={() => setShowAddModal(false)} onSaved={handleActivitySaved} />
+      <EditProfileModal open={showEditProfileModal} profile={profile} onClose={() => setShowEditProfileModal(false)} onSaved={(data) => {
+        setProfile(prev => ({ ...prev, name: data.name }))
+        updateUser?.({ ...profile, name: data.name })
+      }} />
     </AdminLayout>
   )
 }

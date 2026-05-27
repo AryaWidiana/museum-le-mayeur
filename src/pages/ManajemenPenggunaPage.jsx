@@ -305,83 +305,73 @@ export default function ManajemenPenggunaPage() {
           </div>
         )}
 
-        {/* ─── Table ───────────────────────────────────────── */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex-1 flex flex-col min-h-0 overflow-hidden">
-          <div className="flex-1 overflow-auto">
-            <table className="w-full whitespace-nowrap">
-              <thead className="sticky top-0 z-10 bg-[#F8F6F1] shadow-sm">
-                <tr className="text-museum-brown border-b border-gray-200">
-                  <th className="text-left text-[11px] font-bold uppercase tracking-wider px-6 py-4 w-[60px]">No</th>
-                  <th className="text-left text-[11px] font-bold uppercase tracking-wider px-6 py-4">Nama</th>
-                  <th className="text-left text-[11px] font-bold uppercase tracking-wider px-6 py-4">Username</th>
-                  <th className="text-left text-[11px] font-bold uppercase tracking-wider px-6 py-4">Role</th>
-                  <th className="text-right text-[11px] font-bold uppercase tracking-wider px-6 py-4 w-[150px]">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-                ) : filteredData.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="text-center py-16">
-                      <div className="flex flex-col items-center justify-center text-gray-400">
-                        <svg className="w-12 h-12 mb-3 text-gray-200" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                        </svg>
-                        <p className="text-sm font-semibold">
-                          {users.length === 0 ? 'Belum ada data pengguna' : 'Tidak ada hasil untuk pencarian ini'}
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredData.map((row, idx) => (
-                    <tr key={row.id} className="hover:bg-museum-gold/5 transition-colors group">
-                      <td className="px-6 py-4 text-xs font-semibold text-museum-brown/50">{idx + 1}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-museum-gold/20 flex items-center justify-center text-museum-gold font-bold text-xs">
-                            {(row.name || row.username || '?').charAt(0).toUpperCase()}
-                          </div>
-                          <span className="text-xs font-bold text-museum-brown">{row.name || '-'}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-xs text-gray-600">{row.username}</td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold tracking-widest uppercase border ${
-                          row.role === 'SUPER_ADMIN' ? 'bg-museum-brown/10 text-museum-brown border-museum-brown/20' : 'bg-gray-100 text-gray-600 border-gray-200'
-                        }`}>
-                          {row.role === 'SUPER_ADMIN' ? '👑 ' : ''} {row.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => openEdit(row)}
-                            className="flex items-center gap-1.5 bg-yellow-50 text-yellow-600 px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-yellow-100 transition-colors border border-yellow-100/50"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                            </svg>
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => openDelete(row)}
-                            className="flex items-center gap-1.5 bg-red-50 text-red-500 px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-red-100 transition-colors border border-red-100/50"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                            </svg>
-                            Hapus
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+        {/* ─── Cards Grid ───────────────────────────────────────── */}
+        <div className="flex-1 overflow-y-auto pr-2 pb-4">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-pulse h-[200px]"></div>
+              ))}
+            </div>
+          ) : filteredData.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center py-20 text-gray-400">
+              <svg className="w-16 h-16 mb-4 text-gray-200" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+              <p className="text-base font-semibold">{users.length === 0 ? 'Belum ada data pengguna' : 'Tidak ada hasil pencarian'}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredData.map(row => (
+                <div key={row.id} className="relative overflow-hidden bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 flex flex-col hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 group">
+                  {/* Role Badge */}
+                  <div className="absolute top-4 right-4">
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold tracking-widest uppercase border ${
+                      row.role === 'SUPER_ADMIN' ? 'bg-museum-brown/10 text-museum-brown border-museum-brown/20 shadow-sm' : 'bg-gray-50 text-gray-500 border-gray-200'
+                    }`}>
+                      {row.role === 'SUPER_ADMIN' && '👑 '} {row.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-museum-gold/30 to-museum-brown/20 flex items-center justify-center text-museum-brown font-black text-xl shadow-inner border-2 border-white">
+                      {(row.name || row.username || '?').charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-museum-brown leading-tight">{row.name || '-'}</h4>
+                      <p className="text-xs text-gray-500 font-medium mt-0.5">@{row.username}</p>
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    <div className="bg-green-50/50 rounded-xl p-3 border border-green-100/50 flex flex-col items-center justify-center">
+                      <p className="text-[10px] font-bold text-green-600/70 uppercase tracking-widest mb-1">Hadir</p>
+                      <p className="text-lg font-black text-green-600 leading-none">{row.stats?.hadir ?? 0} <span className="text-[10px] font-semibold text-green-600/50">hr</span></p>
+                    </div>
+                    <div className="bg-yellow-50/50 rounded-xl p-3 border border-yellow-100/50 flex flex-col items-center justify-center">
+                      <p className="text-[10px] font-bold text-yellow-600/70 uppercase tracking-widest mb-1">Libur</p>
+                      <p className="text-lg font-black text-yellow-600 leading-none">{row.stats?.libur ?? 0} <span className="text-[10px] font-semibold text-yellow-600/50">hr</span></p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="mt-auto grid grid-cols-2 gap-3">
+                    <button onClick={() => openEdit(row)}
+                      className="flex items-center justify-center gap-2 bg-gray-50 text-gray-600 py-2.5 rounded-xl text-xs font-bold hover:bg-yellow-50 hover:text-yellow-600 hover:border-yellow-200 border border-transparent transition-all">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+                      Edit
+                    </button>
+                    <button onClick={() => openDelete(row)}
+                      className="flex items-center justify-center gap-2 bg-gray-50 text-gray-600 py-2.5 rounded-xl text-xs font-bold hover:bg-red-50 hover:text-red-500 hover:border-red-200 border border-transparent transition-all">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                      Hapus
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

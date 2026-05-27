@@ -143,7 +143,7 @@ export const updateTransaction = async (req, res, next) => {
       include: { category: true }
     });
 
-    await logAdminAction('UPDATE', `Admin mengubah transaksi ID #${txId} menjadi atas nama ${updatedTx.name} dengan kategori ${updatedTx.category.name}`);
+    await logAdminAction('UPDATE', `Admin (${req.admin.username}) mengubah transaksi ID #${txId} menjadi atas nama ${updatedTx.name} dengan kategori ${updatedTx.category.name}`);
 
     res.status(200).json({
       success: true,
@@ -172,7 +172,7 @@ export const deleteTransaction = async (req, res, next) => {
       where: { id: txId }
     });
 
-    await logAdminAction('DELETE', `Admin menghapus transaksi ID #${txId} atas nama ${existingTx.name}`);
+    await logAdminAction('DELETE', `Admin (${req.admin.username}) menghapus transaksi ID #${txId} atas nama ${existingTx.name}`);
 
     res.status(200).json({
       success: true,
