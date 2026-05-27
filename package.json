@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "cd backend && npx prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
