@@ -110,42 +110,74 @@ export default function RiwayatPage() {
     }
   }
 
+  const role = sessionStorage.getItem('admin_role') || 'ADMIN'
+  const username = sessionStorage.getItem('admin_user') || 'Admin'
+
   return (
     <AdminLayout activePage="Riwayat" title="Riwayat" subtitle="Log aktivitas sistem terbaru">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-
-        {/* Kolom Kiri — Audit Log */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 min-h-[500px] flex flex-col">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-base font-bold text-museum-brown">Sistem Audit Log</h3>
-            <span className="bg-gray-100 text-gray-500 text-[10px] font-bold px-3 py-1.5 rounded-md">
-              Halaman {page} dari {totalPages}
+      
+      {/* ─── Minimalist Session Widget ───────────────────────────── */}
+      <div className="mb-6 bg-white/80 backdrop-blur-xl border border-white/50 shadow-[0_4px_20px_rgb(0,0,0,0.04)] px-5 py-3 rounded-xl flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-museum-brown/70">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse" />
+            Sesi Aktif: <span className="font-bold text-museum-brown">{username}</span>
+          </div>
+          <div className="w-px h-4 bg-gray-200 hidden sm:block" />
+          <div className="flex items-center gap-2">
+            Role: 
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-widest border ${
+              role === 'SUPER_ADMIN' ? 'bg-museum-brown/10 text-museum-brown border-museum-brown/20' : 'bg-gray-100 text-gray-500 border-gray-200'
+            }`}>
+              {role === 'SUPER_ADMIN' ? '👑 Super Admin' : 'Admin'}
             </span>
           </div>
+          <div className="w-px h-4 bg-gray-200 hidden sm:block" />
+          <div className="flex items-center gap-2">
+            Status Keamanan:
+            <span className="text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              Audit Log Aktif
+            </span>
+          </div>
+        </div>
+      </div>
 
-          <div className="relative pl-4 space-y-8 flex-1">
-            {/* Vertical Line */}
-            <div className="absolute left-[31px] top-4 bottom-4 w-px bg-gray-100" />
+      {/* ─── Audit Log Container (Full Width) ────────────────────── */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden max-h-[calc(100vh-280px)]">
+        
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-20 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+          <h3 className="text-sm font-bold text-museum-brown">Daftar Audit Log</h3>
+          <span className="bg-gray-50 text-gray-500 text-[10px] font-bold px-3 py-1.5 rounded-md border border-gray-100">
+            Halaman {page} dari {totalPages}
+          </span>
+        </div>
 
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-6 relative">
+          <div className="absolute left-[39px] top-6 bottom-6 w-px bg-gray-100" />
+          
+          <div className="space-y-6 relative">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => <SkeletonItem key={i} />)
             ) : logs.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-12 pl-8">
+              <p className="text-sm text-gray-400 text-center py-12">
                 Belum ada log aktivitas
               </p>
             ) : (
               logs.map((log) => (
                 <div key={log.id} className="relative pl-12 group">
                   <TimelineIcon type={log.action} />
-                  <div className="bg-gray-50/50 rounded-lg p-3 border border-gray-100 group-hover:bg-white group-hover:border-museum-gold/30 group-hover:shadow-sm transition-all">
-                    <div className="flex items-center justify-between mb-1.5">
+                  <div className="bg-gray-50/50 rounded-lg p-4 border border-gray-100 group-hover:bg-white group-hover:border-museum-gold/30 group-hover:shadow-[0_4px_12px_rgba(0,0,0,0.03)] transition-all">
+                    <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-bold text-museum-brown">Log #{log.id}</span>
-                      <span className="text-[10px] font-bold text-museum-gold">{formatDateTime(log.createdAt)}</span>
+                      <span className="text-[11px] font-bold text-museum-gold">{formatDateTime(log.createdAt)}</span>
                     </div>
-                    <p className="text-xs font-medium text-gray-600 mb-2">{log.description}</p>
+                    <p className="text-sm font-medium text-gray-600 mb-3">{log.description}</p>
                     <div className="flex flex-wrap gap-2">
                       {getActionBadge(log.action)}
-                      <span className="bg-white text-gray-500 border border-gray-200 shadow-sm text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                      <span className="bg-white text-gray-500 border border-gray-200 shadow-sm text-[9px] font-bold px-2.5 py-0.5 rounded uppercase tracking-wider">
                         Oleh Admin
                       </span>
                     </div>
@@ -154,73 +186,27 @@ export default function RiwayatPage() {
               ))
             )}
           </div>
-
-          {/* Pagination Controls */}
-          {!loading && totalPages > 1 && (
-            <div className="mt-8 pt-4 border-t border-gray-100 flex justify-between items-center">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1.5 text-xs font-bold text-museum-brown bg-gray-50 rounded hover:bg-gray-100 disabled:opacity-40"
-              >
-                ← Prev
-              </button>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-1.5 text-xs font-bold text-museum-brown bg-gray-50 rounded hover:bg-gray-100 disabled:opacity-40"
-              >
-                Next →
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* Kolom Kanan — Aktivitas Sesi (Info statis) */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 min-h-[400px]">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-base font-bold text-museum-brown">Informasi Sesi</h3>
-            <span className="bg-green-50 text-green-600 text-[10px] font-bold px-3 py-1.5 rounded-md border border-green-100">Aktif</span>
+        {/* Pagination Sticky Footer */}
+        {!loading && totalPages > 1 && (
+          <div className="sticky bottom-0 z-20 bg-white border-t border-gray-100 px-6 py-4 flex justify-between items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 text-xs font-bold text-museum-brown bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 disabled:opacity-40 transition-colors"
+            >
+              ← Prev
+            </button>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-4 py-2 text-xs font-bold text-museum-brown bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 disabled:opacity-40 transition-colors"
+            >
+              Next →
+            </button>
           </div>
-
-          <div className="relative pl-4 space-y-8">
-            <div className="absolute left-[31px] top-4 bottom-4 w-px bg-gray-100" />
-
-            {/* Login event */}
-            <div className="relative pl-12 group">
-              <div className="absolute left-0 top-1.5 w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center border-4 border-white shadow-sm z-10 text-blue-500">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
-              </div>
-              <div className="bg-gray-50/50 rounded-lg p-3 border border-gray-100 group-hover:bg-white group-hover:border-blue-300 group-hover:shadow-sm transition-all">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-museum-brown">Login ke dashboard</span>
-                  <span className="text-[10px] font-bold text-gray-400">Sesi aktif</span>
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-[10px] font-bold text-gray-500 bg-gray-200/50 px-2 py-1 rounded">
-                    {sessionStorage.getItem('admin_user') || 'Admin'}
-                  </span>
-                  <span className="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded">Sukses</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Note about Audit */}
-            <div className="relative pl-12 group">
-              <div className="absolute left-0 top-1.5 w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center border-4 border-white shadow-sm z-10 text-orange-500">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-              </div>
-              <div className="bg-orange-50/50 rounded-lg p-3 border border-orange-100 group-hover:bg-white transition-all">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-orange-800">Catatan Keamanan</span>
-                </div>
-                <p className="text-[11px] text-orange-700 leading-relaxed">
-                  Setiap tindakan (Tambah, Ubah, Hapus) pada Transaksi dan Kategori akan dicatat secara otomatis dalam sistem Audit Log demi keamanan data museum. Log tidak dapat dihapus.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
 
       </div>
     </AdminLayout>
