@@ -19,9 +19,18 @@ function formatDate(dateStr) {
 
 // ─── Status badge styles ──────────────────────────────────────
 const STATUS_STYLES = {
-  Hadir: { badge: 'bg-green-100 text-green-700',  dot: 'bg-green-500' },
-  Libur: { badge: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-400' },
+  Buka: { badge: 'bg-green-100 text-green-700 border border-green-200',  dot: 'bg-green-500' },
+  Libur: { badge: 'bg-yellow-100 text-yellow-700 border border-yellow-200', dot: 'bg-yellow-400' },
+  Tutup: { badge: 'bg-red-100 text-red-700 border border-red-200', dot: 'bg-red-500' },
+  Hadir: { badge: 'bg-blue-100 text-blue-700 border border-blue-200', dot: 'bg-blue-500' }, // fallback
 }
+
+// ─── Premium UI Elements ──────────────────────────────────────
+const FourPointStar = ({ className = "w-4 h-4 text-museum-gold" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0C12 6.627 17.373 12 24 12C17.373 12 12 17.373 12 24C12 17.373 6.627 12 0 12C6.627 12 12 6.627 12 0Z" />
+  </svg>
+)
 
 // ─── Profile Field ────────────────────────────────────────────
 function ProfileField({ label, value, loading }) {
@@ -68,20 +77,19 @@ function ActivityItem({ activity, onDelete, deleting }) {
   const dayNames = ['Min','Sen','Sel','Rab','Kam','Jum','Sab']
   const dateDay = dayNames[d.getDay()]
   const fullDate = formatDate(activity.date)
-  // For backwards compatibility, map 'Buka' to 'Hadir' and 'Tutup' to 'Libur' in UI if old data exists
-  const statusLabel = activity.status === 'Buka' ? 'Hadir' : (activity.status === 'Tutup' ? 'Libur' : activity.status)
-  const style = STATUS_STYLES[statusLabel] || STATUS_STYLES['Hadir']
+  const statusLabel = activity.status || 'Buka'
+  const style = STATUS_STYLES[statusLabel] || STATUS_STYLES['Buka']
 
   return (
     <div className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 bg-white shadow-sm group">
-      <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 flex-shrink-0">
-        <span className="text-sm font-bold text-museum-brown leading-none">{dateNum}</span>
-        <span className="text-[10px] text-gray-400 mt-1">{dateDay}</span>
+      <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-museum-gold/10 to-transparent border border-museum-gold/30 flex-shrink-0 shadow-sm">
+        <span className="text-sm font-black text-museum-brown leading-none">{dateNum}</span>
+        <span className="text-[10px] text-museum-brown/60 font-semibold mt-1">{dateDay}</span>
       </div>
       <div className="flex-1 min-w-0">
         <h5 className="text-xs font-bold text-museum-brown truncate">{activity.desc}</h5>
         <div className="flex items-center gap-2 mt-1.5">
-          <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${style.badge}`}>
+          <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-widest shadow-sm ${style.badge}`}>
             {statusLabel}
           </span>
           <span className="text-[10px] text-gray-400 truncate flex items-center gap-1">
@@ -109,12 +117,12 @@ function ActivityItem({ activity, onDelete, deleting }) {
 
 // ─── Add Activity Modal ───────────────────────────────────────
 function AddActivityModal({ open, onClose, onSaved }) {
-  const [form, setForm] = useState({ date: '', desc: '', status: 'Hadir' })
+  const [form, setForm] = useState({ date: '', desc: '', status: 'Buka' })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
 
   useEffect(() => {
-    if (open) { setForm({ date: '', desc: '', status: 'Hadir' }); setErr('') }
+    if (open) { setForm({ date: '', desc: '', status: 'Buka' }); setErr('') }
   }, [open])
 
   if (!open) return null
@@ -145,52 +153,68 @@ function AddActivityModal({ open, onClose, onSaved }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4">
-        <h3 className="font-bold text-museum-brown text-lg mb-6">Tambah Kegiatan</h3>
-        {err && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-lg mb-4">{err}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-[11px] font-semibold text-museum-brown/70 mb-1 block">Tanggal</label>
-            <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-museum-brown outline-none focus:border-museum-gold transition-colors" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="relative bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-1 max-w-sm w-full mx-4">
+        {/* Art-nouveau border wrapper */}
+        <div className="border border-museum-gold/30 rounded-xl p-7 bg-[#faf9f6]">
+          {/* Decorative Stars */}
+          <FourPointStar className="absolute top-4 left-4 w-5 h-5 text-museum-gold/60" />
+          <FourPointStar className="absolute top-4 right-4 w-5 h-5 text-museum-gold/60" />
+          
+          <div className="text-center mb-6 mt-2">
+            <h3 className="font-bold text-museum-brown text-xl flex items-center justify-center gap-2">
+              <FourPointStar className="w-3 h-3 text-museum-gold" />
+              Tambah Kegiatan
+              <FourPointStar className="w-3 h-3 text-museum-gold" />
+            </h3>
+            <p className="text-[10px] text-museum-brown/60 uppercase tracking-widest mt-1">Status Operasional</p>
           </div>
-          <div>
-            <label className="text-[11px] font-semibold text-museum-brown/70 mb-1 block">Nama Kegiatan</label>
-            <input type="text" value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))}
-              placeholder="Contoh: Upacara Galungan"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-museum-brown outline-none focus:border-museum-gold transition-colors" />
-          </div>
-          <div>
-            <label className="text-[11px] font-semibold text-museum-brown/70 mb-1 block">Status Kehadiran</label>
-            <div className="grid grid-cols-2 gap-2">
-              {['Hadir', 'Libur'].map(s => (
-                <button type="button" key={s} onClick={() => setForm(f => ({ ...f, status: s }))}
-                  className={`py-2 rounded-lg text-xs font-bold border-2 transition-all ${
-                    form.status === s
-                      ? s === 'Hadir' ? 'bg-green-500 text-white border-green-500'
-                        : 'bg-yellow-400 text-white border-yellow-400'
-                      : 'bg-white text-gray-400 border-gray-200 hover:border-gray-300'
-                  }`}>
-                  {s}
-                </button>
-              ))}
+
+          {err && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-lg mb-4 text-center">{err}</p>}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="text-[11px] font-bold tracking-wider text-museum-brown/80 uppercase mb-1.5 block">Tanggal</label>
+              <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                className="w-full bg-white border border-museum-gold/40 rounded-lg px-3 py-2 text-sm text-museum-brown shadow-inner outline-none focus:border-museum-gold focus:ring-1 focus:ring-museum-gold/50 transition-all" />
             </div>
-          </div>
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose}
-              className="flex-1 py-2.5 rounded-lg border-2 border-gray-200 text-museum-brown/60 text-sm font-medium hover:bg-gray-50 transition-colors">
-              Batal
-            </button>
-            <button type="submit" disabled={saving}
-              className="flex-1 py-2.5 rounded-lg bg-museum-brown text-white text-sm font-semibold hover:bg-museum-brown-dark transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
-              {saving
-                ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Menyimpan...</>
-                : 'Simpan'
-              }
-            </button>
-          </div>
-        </form>
+            <div>
+              <label className="text-[11px] font-bold tracking-wider text-museum-brown/80 uppercase mb-1.5 block">Nama Kegiatan</label>
+              <input type="text" value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))}
+                placeholder="Contoh: Upacara Galungan"
+                className="w-full bg-white border border-museum-gold/40 rounded-lg px-3 py-2 text-sm text-museum-brown shadow-inner outline-none focus:border-museum-gold focus:ring-1 focus:ring-museum-gold/50 transition-all" />
+            </div>
+            <div>
+              <label className="text-[11px] font-bold tracking-wider text-museum-brown/80 uppercase mb-1.5 block">Status Operasional</label>
+              <div className="grid grid-cols-3 gap-2">
+                {['Buka', 'Libur', 'Tutup'].map(s => (
+                  <button type="button" key={s} onClick={() => setForm(f => ({ ...f, status: s }))}
+                    className={`py-2 rounded-lg text-[11px] font-extrabold tracking-wide uppercase border-2 transition-all shadow-sm ${
+                      form.status === s
+                        ? s === 'Buka' ? 'bg-green-600 text-white border-green-600'
+                          : s === 'Libur' ? 'bg-yellow-500 text-white border-yellow-500'
+                          : 'bg-red-600 text-white border-red-600'
+                        : 'bg-white text-gray-500 border-gray-200 hover:border-museum-gold/50 hover:text-museum-brown'
+                    }`}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-3 pt-4 border-t border-museum-gold/20">
+              <button type="button" onClick={onClose}
+                className="flex-1 py-2.5 rounded-lg border-2 border-museum-gold/30 text-museum-brown/80 text-xs font-bold uppercase tracking-wider hover:bg-museum-gold/10 transition-colors">
+                Batal
+              </button>
+              <button type="submit" disabled={saving}
+                className="flex-1 py-2.5 rounded-lg bg-museum-gold text-white text-xs font-bold uppercase tracking-wider hover:bg-[#d4af37] shadow-md shadow-museum-gold/30 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+                {saving
+                  ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>Menyimpan...</>
+                  : 'Simpan'
+                }
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   )
@@ -403,7 +427,7 @@ export default function ProfilPage() {
 
   // ─── Stat counts from real data ─────────────────────────────
   const statCounts = activities.reduce((acc, a) => {
-    const statusLabel = a.status === 'Buka' ? 'Hadir' : (a.status === 'Tutup' ? 'Libur' : a.status)
+    const statusLabel = a.status || 'Buka'
     acc[statusLabel] = (acc[statusLabel] || 0) + 1
     return acc
   }, {})
@@ -491,19 +515,21 @@ export default function ProfilPage() {
         {/* ─── Right Column ─────────────────────────────────── */}
         <div className="flex-1 min-w-0 flex flex-col gap-6 w-full">
 
-          {/* Top Stats — dihitung dari data real AdminActivity */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <StatCard
-              title="Hadir" value={statCounts['Hadir'] || 0} subtitle="Hari staf hadir"
-              colorClass="text-green-600" barColor="bg-green-400" loading={actLoading}
-              icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
-            />
-            <StatCard
-              title="Libur" value={statCounts['Libur'] || 0} subtitle="Hari staf libur"
-              colorClass="text-yellow-600" barColor="bg-yellow-400" loading={actLoading}
-              icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636" /></svg>}
-            />
-          </div>
+          {/* Top Stats — dihitung dari data real AdminActivity (hanya tampil jika bukan SUPER_ADMIN) */}
+          {profile?.role !== 'SUPER_ADMIN' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <StatCard
+                title="Hadir" value={statCounts['Buka'] || statCounts['Hadir'] || 0} subtitle="Hari staf hadir"
+                colorClass="text-green-600" barColor="bg-green-400" loading={actLoading}
+                icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+              />
+              <StatCard
+                title="Libur" value={statCounts['Libur'] || 0} subtitle="Hari staf libur"
+                colorClass="text-yellow-600" barColor="bg-yellow-400" loading={actLoading}
+                icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636" /></svg>}
+              />
+            </div>
+          )}
 
           {/* Calendar & Activities */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 flex-1">
@@ -541,7 +567,7 @@ export default function ProfilPage() {
                     )
                   }
                   // Show dot if activity exists on this day
-                  const statusLabel = item.activity ? (item.activity.status === 'Buka' ? 'Hadir' : (item.activity.status === 'Tutup' ? 'Libur' : item.activity.status)) : null
+                  const statusLabel = item.activity ? (item.activity.status || 'Buka') : null
                   const actStyle = statusLabel ? STATUS_STYLES[statusLabel] : null
                   return (
                     <div key={i} title={item.activity ? `${item.activity.desc} (${statusLabel})` : undefined}
@@ -570,11 +596,14 @@ export default function ProfilPage() {
 
             {/* Activities List */}
             <div className="flex flex-col border-t lg:border-t-0 lg:border-l border-gray-100 pt-6 lg:pt-0 lg:pl-8">
-              <div className="flex items-center justify-between mb-6">
-                <h4 className="text-sm font-bold text-museum-brown">Kegiatan Museum</h4>
+              <div className="flex items-center justify-between mb-6 pb-2 border-b border-museum-gold/20">
+                <h4 className="text-sm font-black text-museum-brown flex items-center gap-2">
+                  <FourPointStar className="w-4 h-4 text-museum-gold" />
+                  Daftar Operasional
+                </h4>
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="bg-museum-brown text-white px-3 py-1.5 rounded-md text-[10px] font-bold flex items-center gap-1 hover:bg-museum-brown-dark transition-colors shadow-sm"
+                  className="bg-museum-gold/10 text-museum-brown border border-museum-gold/30 px-3 py-1.5 rounded-md text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 hover:bg-museum-gold hover:text-white transition-all shadow-sm"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

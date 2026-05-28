@@ -70,29 +70,7 @@ export const login = async (req, res) => {
       { expiresIn: '1d' } // Token berlaku 1 hari
     );
 
-    // Auto-Attendance: Catat 'Hadir' untuk hari ini
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
 
-    const existingAttendance = await prisma.adminActivity.findFirst({
-      where: {
-        adminId: admin.id,
-        date: { gte: todayStart, lte: todayEnd },
-      }
-    });
-
-    if (!existingAttendance) {
-      await prisma.adminActivity.create({
-        data: {
-          date: new Date(),
-          desc: `Kehadiran otomatis (Login)`,
-          status: 'Hadir',
-          adminId: admin.id,
-        }
-      });
-    }
 
     res.status(200).json({
       success: true,
