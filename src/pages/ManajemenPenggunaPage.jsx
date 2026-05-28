@@ -360,16 +360,25 @@ export default function ManajemenPenggunaPage() {
                   </div>
 
                   {/* Stats */}
-                  <div className="grid grid-cols-2 gap-3 mb-6">
-                    <div className="bg-green-50/50 rounded-xl p-3 border border-green-100/50 flex flex-col items-center justify-center">
-                      <p className="text-[10px] font-bold text-green-600/70 uppercase tracking-widest mb-1">Hadir</p>
-                      <p className="text-lg font-black text-green-600 leading-none">{row.stats?.hadir ?? 0} <span className="text-[10px] font-semibold text-green-600/50">hr</span></p>
+                  {row.role === 'SUPER_ADMIN' ? (
+                    <div className="flex items-center justify-center bg-gradient-to-br from-museum-gold/5 to-museum-brown/5 rounded-xl p-4 border border-museum-gold/20 mb-6 h-[72px]">
+                      <p className="text-xs font-black text-museum-brown tracking-widest uppercase flex items-center gap-2">
+                        <svg className="w-4 h-4 text-museum-gold" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" /></svg>
+                        Hak Akses Penuh
+                      </p>
                     </div>
-                    <div className="bg-yellow-50/50 rounded-xl p-3 border border-yellow-100/50 flex flex-col items-center justify-center">
-                      <p className="text-[10px] font-bold text-yellow-600/70 uppercase tracking-widest mb-1">Libur</p>
-                      <p className="text-lg font-black text-yellow-600 leading-none">{row.stats?.libur ?? 0} <span className="text-[10px] font-semibold text-yellow-600/50">hr</span></p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3 mb-6 h-[72px]">
+                      <div className="bg-green-50/50 rounded-xl p-3 border border-green-100/50 flex flex-col items-center justify-center">
+                        <p className="text-[10px] font-bold text-green-600/70 uppercase tracking-widest mb-1">Hadir</p>
+                        <p className="text-lg font-black text-green-600 leading-none">{row.stats?.hadir ?? 0} <span className="text-[10px] font-semibold text-green-600/50">hr</span></p>
+                      </div>
+                      <div className="bg-yellow-50/50 rounded-xl p-3 border border-yellow-100/50 flex flex-col items-center justify-center">
+                        <p className="text-[10px] font-bold text-yellow-600/70 uppercase tracking-widest mb-1">Libur</p>
+                        <p className="text-lg font-black text-yellow-600 leading-none">{row.stats?.libur ?? 0} <span className="text-[10px] font-semibold text-yellow-600/50">hr</span></p>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Actions */}
                   <div className="mt-auto grid grid-cols-2 gap-3">

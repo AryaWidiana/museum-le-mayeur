@@ -446,25 +446,25 @@ export default function ProfilPage() {
   // ─── Stat counts calculation ────────────────────────────────
   const todayDateNum = new Date().getDate(); // Tanggal hari ini
   
-  // Hitung "Total Hari Valid"
-  let totalHariValidProfile = todayDateNum;
-  if (profile?.createdAt) {
-    const userCreatedAt = new Date(profile.createdAt);
-    if (userCreatedAt.getFullYear() === year && userCreatedAt.getMonth() === monthIndex) {
-      // Jika akun dibuat pada bulan yang sedang aktif di kalender
-      totalHariValidProfile = todayDateNum - userCreatedAt.getDate() + 1;
-    } else if (userCreatedAt.getFullYear() > year || (userCreatedAt.getFullYear() === year && userCreatedAt.getMonth() > monthIndex)) {
-      // Jika akun dibuat di bulan/tahun setelah kalender yang sedang dilihat
-      totalHariValidProfile = 0;
-    } else if (year < new Date().getFullYear() || monthIndex < new Date().getMonth()) {
-      // Jika melihat bulan lalu
-      totalHariValidProfile = daysInMonth; 
-    }
-  }
+  const uniqueAttDates = new Set();
+  let firstAttendanceDateNum = null;
 
-  const uniqueAttDates = new Set(attendances.map(a => new Date(a.date).toDateString()));
+  attendances.forEach(a => {
+    const d = new Date(a.date);
+    uniqueAttDates.add(d.toDateString());
+    const dayNum = d.getDate();
+    if (firstAttendanceDateNum === null || dayNum < firstAttendanceDateNum) {
+      firstAttendanceDateNum = dayNum;
+    }
+  });
+
   const totalHadirProfile = uniqueAttDates.size;
-  const totalLiburProfile = Math.max(0, totalHariValidProfile - totalHadirProfile);
+  
+  let totalLiburProfile = 0;
+  if (totalHadirProfile > 0 && firstAttendanceDateNum !== null) {
+    const totalHariValidProfile = todayDateNum - firstAttendanceDateNum + 1;
+    totalLiburProfile = Math.max(0, totalHariValidProfile - totalHadirProfile);
+  }
 
   const displayName = profile?.name || profile?.username || sessionStorage.getItem('admin_user') || 'Admin'
   const displayRole = profile?.role || 'admin'

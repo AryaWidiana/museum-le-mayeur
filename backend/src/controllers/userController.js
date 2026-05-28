@@ -34,20 +34,39 @@ export const getUsers = async (req, res) => {
     const currentDateNum = today.getDate(); // Tanggal hari ini
 
     const formattedUsers = users.map(user => {
-      // Hitung "Total Hari Valid"
-      let totalHariValid = currentDateNum;
-      const userCreatedAt = new Date(user.createdAt);
-      if (userCreatedAt.getFullYear() === y && userCreatedAt.getMonth() === m) {
-        // Jika akun dibuat pada bulan ini
-        totalHariValid = currentDateNum - userCreatedAt.getDate() + 1;
+      if (user.role === 'SUPER_ADMIN') {
+        const { attendances, ...userData } = user;
+        return {
+          ...userData,
+          stats: {
+            hadir: null,
+            libur: null
+          }
+        };
       }
 
       // Hitung unik attendance per hari (menghindari duplikasi)
-      const uniqueHadirDates = new Set(user.attendances.map(a => new Date(a.date).toDateString()));
+      const uniqueHadirDates = new Set();
+      let firstAttendanceDateNum = null;
+
+      user.attendances.forEach(a => {
+        const d = new Date(a.date);
+        uniqueHadirDates.add(d.toDateString());
+        const dayNum = d.getDate();
+        if (firstAttendanceDateNum === null || dayNum < firstAttendanceDateNum) {
+          firstAttendanceDateNum = dayNum;
+        }
+      });
+
       const totalHadir = uniqueHadirDates.size;
       
-      // Total Libur = (Total Hari Valid) dikurangi (Total Hadir)
-      const totalLibur = Math.max(0, totalHariValid - totalHadir);
+      let totalLibur = 0;
+      if (totalHadir > 0 && firstAttendanceDateNum !== null) {
+        // Total Hari Valid = (Tanggal Hari Ini) - (Tanggal Hadir Pertama) + 1
+        const totalHariValid = currentDateNum - firstAttendanceDateNum + 1;
+        // Total Libur = (Total Hari Valid) - (Total Hadir)
+        totalLibur = Math.max(0, totalHariValid - totalHadir);
+      }
 
       const { attendances, ...userData } = user;
       return {
