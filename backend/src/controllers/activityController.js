@@ -5,6 +5,11 @@ import { logAdminAction } from '../utils/logger.js';
 export const getActivities = async (req, res, next) => {
   try {
     const activities = await prisma.adminActivity.findMany({
+      where: {
+        status: {
+          in: ['Buka', 'Libur', 'Tutup']
+        }
+      },
       orderBy: { date: 'desc' },
     });
     res.status(200).json({ success: true, data: activities });

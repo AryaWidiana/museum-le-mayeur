@@ -70,7 +70,27 @@ export const login = async (req, res) => {
       { expiresIn: '1d' } // Token berlaku 1 hari
     );
 
+    // Auto-Attendance: Catat 'Hadir' ke AdminAttendance
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
 
+    const existingAttendance = await prisma.adminAttendance.findFirst({
+      where: {
+        adminId: admin.id,
+        date: { gte: todayStart, lte: todayEnd },
+      }
+    });
+
+    if (!existingAttendance) {
+      await prisma.adminAttendance.create({
+        data: {
+          date: new Date(),
+          adminId: admin.id,
+        }
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -136,6 +156,40 @@ export const updateMe = async (req, res) => {
     res.status(200).json({ success: true, message: 'Profil berhasil diperbarui', data: updated });
   } catch (error) {
     console.error('UpdateMe Error:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server' });
+  }
+};
+
+// GET /api/auth/attendance — Ambil data absensi admin (difilter per bulan)
+export const getMyAttendance = async (req, res) => {
+  try {
+    const { year, month } = req.query;
+    
+    let dateFilter = {};
+    if (year && month) {
+      const y = parseInt(year);
+      const m = parseInt(month) - 1; // JS month is 0-indexed
+      
+      const startOfMonth = new Date(y, m, 1);
+      const endOfMonth = new Date(y, m + 1, 0, 23, 59, 59, 999);
+      
+      dateFilter = {
+        gte: startOfMonth,
+        lte: endOfMonth
+      };
+    }
+
+    const attendances = await prisma.adminAttendance.findMany({
+      where: {
+        adminId: req.admin.id,
+        ...(Object.keys(dateFilter).length > 0 && { date: dateFilter })
+      },
+      orderBy: { date: 'asc' }
+    });
+
+    res.status(200).json({ success: true, data: attendances });
+  } catch (error) {
+    console.error('GetAttendance Error:', error);
     res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server' });
   }
 };

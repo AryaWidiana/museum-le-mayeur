@@ -16,6 +16,7 @@ model Admin {
   role       String          @default("ADMIN")
   createdAt  DateTime        @default(now())
   activities AdminActivity[]
+  attendances AdminAttendance[]
 }
 
 model Category {
@@ -64,6 +65,13 @@ model AdminActivity {
   createdAt DateTime @default(now())
   adminId   Int?
   admin     Admin?   @relation(fields: [adminId], references: [id])
+}
+
+model AdminAttendance {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @default(now())
+  adminId   Int
+  admin     Admin    @relation(fields: [adminId], references: [id])
 }
 
 model AuditLog {

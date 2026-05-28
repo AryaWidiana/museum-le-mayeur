@@ -302,6 +302,9 @@ export default function ProfilPage() {
   const [actLoading, setActLoading] = useState(true)
   const [deleting, setDeleting] = useState(null) // id yang sedang dihapus
 
+  const [attendances, setAttendances] = useState([])
+  const [attLoading, setAttLoading] = useState(true)
+
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditProfileModal, setShowEditProfileModal] = useState(false)
 
@@ -320,10 +323,10 @@ export default function ProfilPage() {
   }
   for (let i = 1; i <= daysInMonth; i++) {
     const isToday = today.getDate() === i && today.getMonth() === monthIndex && today.getFullYear() === year
-    // Check if this day has an activity
+    // Check if this day has an attendance record
     const dateStr = `${year}-${String(monthIndex + 1).padStart(2,'0')}-${String(i).padStart(2,'0')}`
-    const act = activities.find(a => a.date?.startsWith(dateStr))
-    calendarDays.push({ date: i, isCurrentMonth: true, isToday, activity: act })
+    const hasAtt = attendances.some(a => a.date?.startsWith(dateStr))
+    calendarDays.push({ date: i, isCurrentMonth: true, isToday, hasAtt })
   }
   const remaining = 42 - calendarDays.length
   for (let i = 1; i <= remaining; i++) {
@@ -355,10 +358,25 @@ export default function ProfilPage() {
     finally { setActLoading(false) }
   }, [])
 
+  // ─── Fetch attendances ──────────────────────────────────────
+  const fetchAttendances = useCallback(async (y, m) => {
+    try {
+      setAttLoading(true)
+      const res = await fetch(`${baseURL}/auth/attendance?year=${y}&month=${m + 1}`, { headers: authHeaders() })
+      const data = await res.json()
+      if (res.ok && data.success) setAttendances(data.data || [])
+    } catch { /* silently fail */ }
+    finally { setAttLoading(false) }
+  }, [])
+
   useEffect(() => {
     fetchProfile()
     fetchActivities()
   }, [fetchProfile, fetchActivities])
+
+  useEffect(() => {
+    fetchAttendances(year, monthIndex)
+  }, [fetchAttendances, year, monthIndex])
 
   // ─── Upload profile photo ─────────────────────────────────────
   const handlePhotoChange = (e) => {
@@ -566,14 +584,14 @@ export default function ProfilPage() {
                       </div>
                     )
                   }
-                  // Show dot if activity exists on this day
-                  const statusLabel = item.activity ? (item.activity.status || 'Buka') : null
-                  const actStyle = statusLabel ? STATUS_STYLES[statusLabel] : null
+                  // Show glowing star if attendance exists on this day
                   return (
-                    <div key={i} title={item.activity ? `${item.activity.desc} (${statusLabel})` : undefined}
-                      className="h-10 flex items-center justify-center rounded-lg text-xs font-medium text-museum-brown bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative">
-                      {actStyle && (
-                        <span className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full ${actStyle.dot}`} />
+                    <div key={i} title={item.hasAtt ? 'Hadir' : undefined}
+                      className="h-10 flex items-center justify-center rounded-lg text-xs font-medium text-museum-brown bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative overflow-hidden group">
+                      {item.hasAtt && (
+                        <div className="absolute top-1 right-1 animate-pulse">
+                          <FourPointStar className="w-3 h-3 text-green-500 drop-shadow-[0_0_4px_rgba(34,197,94,0.8)]" />
+                        </div>
                       )}
                       {item.date}
                     </div>
@@ -581,17 +599,13 @@ export default function ProfilPage() {
                 })}
               </div>
 
-              {/* Legend */}
-              {activities.length > 0 && (
-                <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
-                  {Object.entries(STATUS_STYLES).map(([status, s]) => (
-                    <div key={status} className="flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full ${s.dot}`} />
-                      <span className="text-[10px] text-gray-500">{status}</span>
-                    </div>
-                  ))}
+              {/* Legend (Attendances) */}
+              <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-1.5">
+                  <FourPointStar className="w-3 h-3 text-green-500" />
+                  <span className="text-[10px] text-gray-500">Hadir (Login)</span>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Activities List */}
