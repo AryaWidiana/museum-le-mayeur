@@ -215,6 +215,9 @@ export default function ManajemenPenggunaPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const [globalLeaves, setGlobalLeaves] = useState([])
+  const [leavesLoading, setLeavesLoading] = useState(false)
+
   const [search, setSearch] = useState('')
 
   // Modal states
@@ -252,7 +255,27 @@ export default function ManajemenPenggunaPage() {
     }
   }, [])
 
-  useEffect(() => { fetchUsers() }, [fetchUsers])
+  const fetchGlobalLeaves = useCallback(async () => {
+    try {
+      setLeavesLoading(true)
+      const res = await fetch(`${baseURL}/activities?global=true`, { headers: authHeaders() })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setGlobalLeaves(data.data || [])
+      }
+    } catch {
+      console.warn('Gagal memuat jadwal libur global')
+    } finally {
+      setLeavesLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { 
+    fetchUsers() 
+    if (sessionStorage.getItem('admin_role') === 'SUPER_ADMIN') {
+      fetchGlobalLeaves()
+    }
+  }, [fetchUsers, fetchGlobalLeaves])
 
   const openAdd = () => { setModalMode('add'); setEditTarget(null); setModalOpen(true) }
   const openEdit = (user) => { setModalMode('edit'); setEditTarget(user); setModalOpen(true) }
@@ -268,6 +291,21 @@ export default function ManajemenPenggunaPage() {
 
   const handleDeleted = (id) => {
     setUsers(prev => prev.filter(u => u.id !== id))
+  }
+
+  const handleDeleteLeave = async (leaveId) => {
+    if (!confirm('Hapus jadwal libur ini?')) return
+    try {
+      const res = await fetch(`${baseURL}/activities/${leaveId}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      })
+      if (res.ok) {
+        setGlobalLeaves(prev => prev.filter(l => l.id !== leaveId))
+      }
+    } catch {
+      alert('Gagal menghapus jadwal libur')
+    }
   }
 
   const filteredData = users.filter(item => {
@@ -395,6 +433,68 @@ export default function ManajemenPenggunaPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* ─── Global Leave Schedule (Super Admin Only) ─────── */}
+          {sessionStorage.getItem('admin_role') === 'SUPER_ADMIN' && (
+            <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-museum-brown">Jadwal Libur Global</h3>
+                  <p className="text-[11px] text-gray-400 font-medium">Pantau pengajuan libur seluruh staf kasir/admin</p>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-100">
+                      <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest w-[25%]">Tanggal</th>
+                      <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest w-[25%]">Staf (Admin)</th>
+                      <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Alasan / Catatan</th>
+                      <th className="px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right w-[15%]">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50 text-sm">
+                    {leavesLoading ? (
+                      <tr><td colSpan={4} className="p-8 text-center text-gray-400 text-xs">Memuat jadwal...</td></tr>
+                    ) : globalLeaves.length === 0 ? (
+                      <tr><td colSpan={4} className="p-8 text-center text-gray-400 text-xs">Tidak ada jadwal libur terdaftar.</td></tr>
+                    ) : (
+                      globalLeaves.map(leave => {
+                        const leaveDate = new Date(leave.date)
+                        const isPast = leaveDate < new Date().setHours(0,0,0,0)
+                        return (
+                          <tr key={leave.id} className="hover:bg-amber-50/30 transition-colors">
+                            <td className="px-5 py-4">
+                              <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${isPast ? 'bg-gray-100 text-gray-500' : 'bg-amber-100 text-amber-700'}`}>
+                                {leaveDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4 font-semibold text-museum-brown">
+                              {leave.admin?.name || leave.admin?.username || '-'}
+                            </td>
+                            <td className="px-5 py-4 text-gray-600">
+                              {leave.desc}
+                            </td>
+                            <td className="px-5 py-4 text-right">
+                              <button onClick={() => handleDeleteLeave(leave.id)} className="text-red-400 hover:text-red-600 text-xs font-semibold underline decoration-transparent hover:decoration-red-600 transition-all">
+                                Hapus
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>

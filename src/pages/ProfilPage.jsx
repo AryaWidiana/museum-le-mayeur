@@ -82,15 +82,15 @@ function ActivityItem({ activity, onDelete, deleting }) {
 
   return (
     <div className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 bg-white shadow-sm group">
-      <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-museum-gold/10 to-transparent border border-museum-gold/30 flex-shrink-0 shadow-sm">
-        <span className="text-sm font-black text-museum-brown leading-none">{dateNum}</span>
-        <span className="text-[10px] text-museum-brown/60 font-semibold mt-1">{dateDay}</span>
+      <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/30 flex-shrink-0 shadow-sm">
+        <span className="text-sm font-black text-amber-700 leading-none">{dateNum}</span>
+        <span className="text-[10px] text-amber-700/60 font-semibold mt-1">{dateDay}</span>
       </div>
       <div className="flex-1 min-w-0">
         <h5 className="text-xs font-bold text-museum-brown truncate">{activity.desc}</h5>
         <div className="flex items-center gap-2 mt-1.5">
-          <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-widest shadow-sm ${style.badge}`}>
-            {statusLabel}
+          <span className="px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-widest shadow-sm bg-amber-100 text-amber-700 border border-amber-200">
+            Libur
           </span>
           <span className="text-[10px] text-gray-400 truncate flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -103,33 +103,24 @@ function ActivityItem({ activity, onDelete, deleting }) {
       <button
         onClick={() => onDelete(activity.id)}
         disabled={deleting === activity.id}
-        title="Hapus kegiatan"
+        title="Batalkan libur"
         className="ml-1 w-7 h-7 rounded-full bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all flex-shrink-0 disabled:opacity-50"
       >
-        {deleting === activity.id
-          ? <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-          : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-        }
-      </button>
-    </div>
-  )
-}
-
-// ─── Add Activity Modal ───────────────────────────────────────
+  // ─── Add Leave Modal ──────────────────────────────────────────
 function AddActivityModal({ open, onClose, onSaved }) {
-  const [form, setForm] = useState({ date: '', desc: '', status: 'Buka' })
+  const [form, setForm] = useState({ date: '', desc: '' })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState('')
 
   useEffect(() => {
-    if (open) { setForm({ date: '', desc: '', status: 'Buka' }); setErr('') }
+    if (open) { setForm({ date: '', desc: '' }); setErr('') }
   }, [open])
 
   if (!open) return null
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.date || !form.desc) { setErr('Tanggal dan nama kegiatan wajib diisi'); return }
+    if (!form.date || !form.desc) { setErr('Tanggal dan alasan libur wajib diisi'); return }
     try {
       setSaving(true)
       setErr('')
@@ -143,7 +134,7 @@ function AddActivityModal({ open, onClose, onSaved }) {
         onSaved(data.data)
         onClose()
       } else {
-        setErr(data.message || 'Gagal menyimpan kegiatan')
+        setErr(data.message || 'Gagal menyimpan jadwal libur')
       }
     } catch {
       setErr('Tidak dapat terhubung ke server')
@@ -164,31 +155,25 @@ function AddActivityModal({ open, onClose, onSaved }) {
           <div className="text-center mb-6 mt-2">
             <h3 className="font-bold text-museum-brown text-xl flex items-center justify-center gap-2">
               <FourPointStar className="w-3 h-3 text-museum-gold" />
-              Tambah Kegiatan
+              Ajukan Libur
               <FourPointStar className="w-3 h-3 text-museum-gold" />
             </h3>
-            <p className="text-[10px] text-museum-brown/60 uppercase tracking-widest mt-1">Status Operasional</p>
+            <p className="text-[10px] text-museum-brown/60 uppercase tracking-widest mt-1">Jadwal Cuti / Libur</p>
           </div>
 
           {err && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-3 py-2 rounded-lg mb-4 text-center">{err}</p>}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-[11px] font-bold tracking-wider text-museum-brown/80 uppercase mb-1.5 block">Tanggal</label>
+              <label className="text-[11px] font-bold tracking-wider text-museum-brown/80 uppercase mb-1.5 block">Tanggal Libur</label>
               <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
                 className="w-full bg-white border border-museum-gold/40 rounded-lg px-3 py-2 text-sm text-museum-brown shadow-inner outline-none focus:border-museum-gold focus:ring-1 focus:ring-museum-gold/50 transition-all" />
             </div>
             <div>
-              <label className="text-[11px] font-bold tracking-wider text-museum-brown/80 uppercase mb-1.5 block">Nama Kegiatan</label>
+              <label className="text-[11px] font-bold tracking-wider text-museum-brown/80 uppercase mb-1.5 block">Alasan / Catatan</label>
               <input type="text" value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))}
-                placeholder="Contoh: Upacara Galungan"
+                placeholder="Contoh: Acara keluarga / Sakit"
                 className="w-full bg-white border border-museum-gold/40 rounded-lg px-3 py-2 text-sm text-museum-brown shadow-inner outline-none focus:border-museum-gold focus:ring-1 focus:ring-museum-gold/50 transition-all" />
-            </div>
-            <div>
-              <label className="text-[11px] font-bold tracking-wider text-museum-brown/80 uppercase mb-1.5 block">Status Operasional</label>
-              <div className="grid grid-cols-3 gap-2">
-                {['Buka', 'Libur', 'Tutup'].map(s => (
-                  <button type="button" key={s} onClick={() => setForm(f => ({ ...f, status: s }))}
-                    className={`py-2 rounded-lg text-[11px] font-extrabold tracking-wide uppercase border-2 transition-all shadow-sm ${
+            </div>me={`py-2 rounded-lg text-[11px] font-extrabold tracking-wide uppercase border-2 transition-all shadow-sm ${
                       form.status === s
                         ? s === 'Buka' ? 'bg-green-600 text-white border-green-600'
                           : s === 'Libur' ? 'bg-yellow-500 text-white border-yellow-500'
@@ -323,10 +308,11 @@ export default function ProfilPage() {
   }
   for (let i = 1; i <= daysInMonth; i++) {
     const isToday = today.getDate() === i && today.getMonth() === monthIndex && today.getFullYear() === year
-    // Check if this day has an attendance record
+    // Check if this day has an attendance record or a leave record
     const dateStr = `${year}-${String(monthIndex + 1).padStart(2,'0')}-${String(i).padStart(2,'0')}`
     const hasAtt = attendances.some(a => a.date?.startsWith(dateStr))
-    calendarDays.push({ date: i, isCurrentMonth: true, isToday, hasAtt })
+    const hasLeave = activities.some(a => a.date?.startsWith(dateStr))
+    calendarDays.push({ date: i, isCurrentMonth: true, isToday, hasAtt, hasLeave })
   }
   const remaining = 42 - calendarDays.length
   for (let i = 1; i <= remaining; i++) {
@@ -347,11 +333,11 @@ export default function ProfilPage() {
     finally { setProfileLoading(false) }
   }, [updateUser])
 
-  // ─── Fetch activities ───────────────────────────────────────
-  const fetchActivities = useCallback(async () => {
+  // ─── Fetch activities (Leaves) ──────────────────────────────
+  const fetchActivities = useCallback(async (y, m) => {
     try {
       setActLoading(true)
-      const res = await fetch(`${baseURL}/activities`, { headers: authHeaders() })
+      const res = await fetch(`${baseURL}/activities?year=${y}&month=${m + 1}`, { headers: authHeaders() })
       const data = await res.json()
       if (res.ok && data.success) setActivities(data.data || [])
     } catch { /* silently fail */ }
@@ -371,12 +357,12 @@ export default function ProfilPage() {
 
   useEffect(() => {
     fetchProfile()
-    fetchActivities()
-  }, [fetchProfile, fetchActivities])
+  }, [fetchProfile])
 
   useEffect(() => {
     fetchAttendances(year, monthIndex)
-  }, [fetchAttendances, year, monthIndex])
+    fetchActivities(year, monthIndex)
+  }, [fetchAttendances, fetchActivities, year, monthIndex])
 
   // ─── Upload profile photo ─────────────────────────────────────
   const handlePhotoChange = (e) => {
@@ -600,26 +586,33 @@ export default function ProfilPage() {
                       </div>
                     )
                   }
-                  // Show glowing star if attendance exists on this day
+                  // Show glowing stars for attendance and leave
                   return (
-                    <div key={i} title={item.hasAtt ? 'Hadir' : undefined}
+                    <div key={i} title={item.hasAtt && item.hasLeave ? 'Hadir & Libur' : item.hasAtt ? 'Hadir' : item.hasLeave ? 'Libur' : undefined}
                       className="h-10 flex items-center justify-center rounded-lg text-xs font-medium text-museum-brown bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer relative overflow-hidden group">
-                      {item.hasAtt && (
-                        <div className="absolute top-1 right-1 animate-pulse">
+                      <div className="absolute top-1 right-1 flex items-center gap-0.5 animate-pulse">
+                        {item.hasLeave && (
+                          <FourPointStar className="w-3 h-3 text-amber-500 drop-shadow-[0_0_4px_rgba(245,158,11,0.8)]" />
+                        )}
+                        {item.hasAtt && (
                           <FourPointStar className="w-3 h-3 text-green-500 drop-shadow-[0_0_4px_rgba(34,197,94,0.8)]" />
-                        </div>
-                      )}
+                        )}
+                      </div>
                       {item.date}
                     </div>
                   )
                 })}
               </div>
 
-              {/* Legend (Attendances) */}
+              {/* Legend (Attendances & Leaves) */}
               <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
                 <div className="flex items-center gap-1.5">
                   <FourPointStar className="w-3 h-3 text-green-500" />
                   <span className="text-[10px] text-gray-500">Hadir (Login)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <FourPointStar className="w-3 h-3 text-amber-500" />
+                  <span className="text-[10px] text-gray-500">Jadwal Libur</span>
                 </div>
               </div>
             </div>
@@ -629,16 +622,16 @@ export default function ProfilPage() {
               <div className="flex items-center justify-between mb-6 pb-2 border-b border-museum-gold/20">
                 <h4 className="text-sm font-black text-museum-brown flex items-center gap-2">
                   <FourPointStar className="w-4 h-4 text-museum-gold" />
-                  Daftar Operasional
+                  Jadwal Libur
                 </h4>
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="bg-museum-gold/10 text-museum-brown border border-museum-gold/30 px-3 py-1.5 rounded-md text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 hover:bg-museum-gold hover:text-white transition-all shadow-sm"
+                  className="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-md text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 hover:bg-amber-500 hover:text-white hover:border-amber-500 transition-all shadow-sm"
                 >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                   </svg>
-                  Tambah baru
+                  Ajukan Libur
                 </button>
               </div>
 
@@ -660,8 +653,8 @@ export default function ProfilPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5" />
                       </svg>
                     </div>
-                    <p className="text-sm text-gray-400 font-medium">Belum ada kegiatan</p>
-                    <p className="text-[11px] text-gray-300 mt-1">Klik "Tambah baru" untuk menambahkan</p>
+                    <p className="text-sm text-gray-400 font-medium">Belum ada jadwal libur</p>
+                    <p className="text-[11px] text-gray-300 mt-1">Klik "Ajukan Libur" untuk menambahkan jadwal</p>
                   </div>
                 ) : (
                   activities.map(act => (
