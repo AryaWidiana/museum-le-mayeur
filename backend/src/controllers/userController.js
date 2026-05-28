@@ -1,19 +1,15 @@
 import bcrypt from 'bcrypt';
 import prisma from '../utils/prisma.js';
 
-// Helper untuk menghitung hari kerja sejak tanggal dibuat hingga hari ini
-const getDaysBetween = (startDate, endDate) => {
-  const start = new Date(startDate);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(endDate);
-  end.setHours(0, 0, 0, 0);
-  const diffTime = Math.abs(end - start);
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Termasuk hari pertama
-};
-
 // GET /api/users
 export const getUsers = async (req, res) => {
   try {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = today.getMonth();
+    const startOfMonth = new Date(y, m, 1);
+    const endOfMonth = new Date(y, m + 1, 0, 23, 59, 59, 999);
+
     const users = await prisma.admin.findMany({
       select: {
         id: true,
@@ -22,26 +18,30 @@ export const getUsers = async (req, res) => {
         role: true,
         createdAt: true,
         profilePic: true,
-        activities: {
-          where: { status: 'Hadir' },
+        attendances: {
+          where: {
+            date: {
+              gte: startOfMonth,
+              lte: endOfMonth
+            }
+          },
           select: { date: true }
         }
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    const today = new Date();
-    const formattedUsers = users.map(user => {
-      // Hitung total hari sejak akun dibuat
-      const totalDays = getDaysBetween(user.createdAt, today);
-      
-      // Karena kita hanya mencatat 1 'Hadir' per hari pada login, kita bisa asumsikan jumlah record Hadir = hari hadir.
-      // Untuk memastikan akurasi, kita bisa menghitung tanggal unik, tapi array length biasanya cukup.
-      const uniqueHadirDates = new Set(user.activities.map(a => new Date(a.date).toDateString()));
-      const totalHadir = uniqueHadirDates.size;
-      const totalLibur = Math.max(0, totalDays - totalHadir);
+    const currentDateNum = today.getDate(); // Tanggal hari ini
 
-      const { activities, ...userData } = user;
+    const formattedUsers = users.map(user => {
+      // Hitung unik attendance per hari (menghindari duplikasi)
+      const uniqueHadirDates = new Set(user.attendances.map(a => new Date(a.date).toDateString()));
+      const totalHadir = uniqueHadirDates.size;
+      
+      // Total Libur = (Tanggal Hari Ini) dikurangi (Total Hadir)
+      const totalLibur = Math.max(0, currentDateNum - totalHadir);
+
+      const { attendances, ...userData } = user;
       return {
         ...userData,
         stats: {

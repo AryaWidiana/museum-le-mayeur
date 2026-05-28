@@ -443,12 +443,11 @@ export default function ProfilPage() {
     setActivities(prev => [newActivity, ...prev].sort((a, b) => new Date(b.date) - new Date(a.date)))
   }
 
-  // ─── Stat counts from real data ─────────────────────────────
-  const statCounts = activities.reduce((acc, a) => {
-    const statusLabel = a.status || 'Buka'
-    acc[statusLabel] = (acc[statusLabel] || 0) + 1
-    return acc
-  }, {})
+  // ─── Stat counts calculation ────────────────────────────────
+  const todayDateNum = new Date().getDate(); // Tanggal hari ini
+  const uniqueAttDates = new Set(attendances.map(a => new Date(a.date).toDateString()));
+  const totalHadirProfile = uniqueAttDates.size;
+  const totalLiburProfile = Math.max(0, todayDateNum - totalHadirProfile);
 
   const displayName = profile?.name || profile?.username || sessionStorage.getItem('admin_user') || 'Admin'
   const displayRole = profile?.role || 'admin'
@@ -533,17 +532,17 @@ export default function ProfilPage() {
         {/* ─── Right Column ─────────────────────────────────── */}
         <div className="flex-1 min-w-0 flex flex-col gap-6 w-full">
 
-          {/* Top Stats — dihitung dari data real AdminActivity (hanya tampil jika bukan SUPER_ADMIN) */}
+          {/* Top Stats — dihitung dari data real AdminAttendance (hanya tampil jika bukan SUPER_ADMIN) */}
           {profile?.role !== 'SUPER_ADMIN' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <StatCard
-                title="Hadir" value={statCounts['Buka'] || statCounts['Hadir'] || 0} subtitle="Hari staf hadir"
-                colorClass="text-green-600" barColor="bg-green-400" loading={actLoading}
+                title="Hadir" value={totalHadirProfile} subtitle="Hari staf hadir bulan ini"
+                colorClass="text-green-600" barColor="bg-green-400" loading={attLoading}
                 icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
               />
               <StatCard
-                title="Libur" value={statCounts['Libur'] || 0} subtitle="Hari staf libur"
-                colorClass="text-yellow-600" barColor="bg-yellow-400" loading={actLoading}
+                title="Libur" value={totalLiburProfile} subtitle="Hari staf libur bulan ini"
+                colorClass="text-yellow-600" barColor="bg-yellow-400" loading={attLoading}
                 icon={<svg fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636" /></svg>}
               />
             </div>
