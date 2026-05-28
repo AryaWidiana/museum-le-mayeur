@@ -106,7 +106,16 @@ function ActivityItem({ activity, onDelete, deleting }) {
         title="Batalkan libur"
         className="ml-1 w-7 h-7 rounded-full bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all flex-shrink-0 disabled:opacity-50"
       >
-  // ─── Add Leave Modal ──────────────────────────────────────────
+        {deleting === activity.id
+          ? <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+          : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        }
+      </button>
+    </div>
+  )
+}
+
+// ─── Add Leave Modal ──────────────────────────────────────────
 function AddActivityModal({ open, onClose, onSaved }) {
   const [form, setForm] = useState({ date: '', desc: '' })
   const [saving, setSaving] = useState(false)
@@ -173,17 +182,6 @@ function AddActivityModal({ open, onClose, onSaved }) {
               <input type="text" value={form.desc} onChange={e => setForm(f => ({ ...f, desc: e.target.value }))}
                 placeholder="Contoh: Acara keluarga / Sakit"
                 className="w-full bg-white border border-museum-gold/40 rounded-lg px-3 py-2 text-sm text-museum-brown shadow-inner outline-none focus:border-museum-gold focus:ring-1 focus:ring-museum-gold/50 transition-all" />
-            </div>me={`py-2 rounded-lg text-[11px] font-extrabold tracking-wide uppercase border-2 transition-all shadow-sm ${
-                      form.status === s
-                        ? s === 'Buka' ? 'bg-green-600 text-white border-green-600'
-                          : s === 'Libur' ? 'bg-yellow-500 text-white border-yellow-500'
-                          : 'bg-red-600 text-white border-red-600'
-                        : 'bg-white text-gray-500 border-gray-200 hover:border-museum-gold/50 hover:text-museum-brown'
-                    }`}>
-                    {s}
-                  </button>
-                ))}
-              </div>
             </div>
             <div className="flex gap-3 pt-4 border-t border-museum-gold/20">
               <button type="button" onClick={onClose}
