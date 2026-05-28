@@ -34,12 +34,20 @@ export const getUsers = async (req, res) => {
     const currentDateNum = today.getDate(); // Tanggal hari ini
 
     const formattedUsers = users.map(user => {
+      // Hitung "Total Hari Valid"
+      let totalHariValid = currentDateNum;
+      const userCreatedAt = new Date(user.createdAt);
+      if (userCreatedAt.getFullYear() === y && userCreatedAt.getMonth() === m) {
+        // Jika akun dibuat pada bulan ini
+        totalHariValid = currentDateNum - userCreatedAt.getDate() + 1;
+      }
+
       // Hitung unik attendance per hari (menghindari duplikasi)
       const uniqueHadirDates = new Set(user.attendances.map(a => new Date(a.date).toDateString()));
       const totalHadir = uniqueHadirDates.size;
       
-      // Total Libur = (Tanggal Hari Ini) dikurangi (Total Hadir)
-      const totalLibur = Math.max(0, currentDateNum - totalHadir);
+      // Total Libur = (Total Hari Valid) dikurangi (Total Hadir)
+      const totalLibur = Math.max(0, totalHariValid - totalHadir);
 
       const { attendances, ...userData } = user;
       return {
